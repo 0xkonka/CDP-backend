@@ -5,8 +5,7 @@ import { generateRandomCode } from '../utils'
 
 export const generateInviteCode = async (req: Request, res: Response) => {
   try {
-    console.log('req.query', req.query)
-    const count = req.query.count || 1
+    const count = req.body.count || 1
 
     for (let i = 0; i < +count; i++) {
       const inviteCode = generateRandomCode()
@@ -24,8 +23,7 @@ export const generateInviteCode = async (req: Request, res: Response) => {
 
 export const redeemInviteCode = async (req: Request, res: Response) => {
   try {
-    console.log('req.query', req.query)
-    const { account, inviteCode, count } = req.query
+    const { account, inviteCode, count } = req.body
 
     if (!account || !inviteCode || !count) {
       return res.status(400).json({ result: false, message: 'Missing account or inviteCode or count' })

@@ -16,6 +16,7 @@ const options = {
 
 app.set('trust proxy', true)
 
+app.use(express.json());
 app.use(cors(options)).use((req, res, next) => {
   res.set('X-Content-Type-Options', 'nosniff')
   res.set('X-Frame-Options', 'DENY')
@@ -23,7 +24,7 @@ app.use(cors(options)).use((req, res, next) => {
   next()
 })
 db.connect()
-// app.use(express.json());
+
 // app.use(function (_, res, next) {
 //   res.header('Content-Type', 'application/json');
 //   next();

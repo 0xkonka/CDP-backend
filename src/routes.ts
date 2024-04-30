@@ -1,6 +1,11 @@
-import { generateInviteCode } from './controller/referral'
+import { getInviteCodes, redeemInviteCode, generateInviteCode } from './controller/referral'
 export default function routes(app: any) {
-  app.post('/api/generate_inviteCode', generateInviteCode)
+  // Admin Routes
+  app.post('/api/referral/admin/generate', generateInviteCode)
+
+  // User Routes
+  app.post('/api/referral/user/redeem', redeemInviteCode)
+  app.get('/api/referral/user/:account', getInviteCodes)
 
   // app.get('/api/referral/:account', async (req, res, next) => {
   //   const account = req.params.account

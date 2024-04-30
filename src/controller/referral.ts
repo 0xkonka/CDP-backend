@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { NOT_FOUND_CODE, NOT_FOUND_MSG, SERVER_ERROR_CODE, SERVER_ERROR_MSG, SUCCESS_CODE } from '../utils/response'
+import { BAD_REQ_CODE, CONFLICT_CODE, FORBIDDEN_CODE, FORBIDDEN_MSG, NOT_FOUND_CODE, NOT_FOUND_MSG, SERVER_ERROR_CODE, SERVER_ERROR_MSG, SUCCESS_CODE } from '../utils/response'
 import { Referral } from '../models/Referral'
 import { generateRandomCode } from '../utils'
 
@@ -21,11 +21,34 @@ export const generateInviteCode = async (req: Request, res: Response) => {
   }
 }
 
+export const validateInviteCode = async (req: Request, res: Response) => {
+  try {
+    console.log('req.body', req.body)
+    const { inviteCode } = req.body
+
+    if (!inviteCode) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing inviteCode' })
+    }
+
+    const referral = await Referral.findOne({ inviteCode })
+
+    if (!referral) return res.status(NOT_FOUND_CODE).send({ result: false, messages: "InviteCode Not Found" })
+
+    if(referral.redeemed == true) return res.status(CONFLICT_CODE).send({ result: false, messages: "This InviteCode is already redeemed" })
+
+    return res.status(SUCCESS_CODE).send({ result: true, data: referral })
+  } catch (error) {
+    console.log('error', error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+
 export const redeemInviteCode = async (req: Request, res: Response) => {
   try {
     const { account, inviteCode, count } = req.body
 
-    if (!account || !inviteCode || !count) {
+    if (!account || !inviteCode || !count ) {
       return res.status(400).json({ result: false, message: 'Missing account or inviteCode or count' })
     }
 
@@ -45,15 +68,15 @@ export const redeemInviteCode = async (req: Request, res: Response) => {
   }
 }
 
-export const getInviteCodes = async (req: Request, res: Response) => {
+export const getUserReferral = async (req: Request, res: Response) => {
   try {
     const account = req.params.account
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
-    const data = await Referral.find({ owner: account })
+    const referral = await Referral.find({ owner: account })
 
-    return res.status(SUCCESS_CODE).send({ result: true, data })
+    return res.status(SUCCESS_CODE).send({ result: true, data : referral })
   } catch (error) {
     console.log('error', error)
     return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })

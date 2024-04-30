@@ -12,7 +12,7 @@ const ReferralSchema = new Schema({
         type: Boolean,
         default: false
     },
-    signMsg: { type: String }
+    // signMsg: { type: String }
 })
 
 export const Referral = mongoose.models.Referral || mongoose.model('Referral', ReferralSchema)

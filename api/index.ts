@@ -8,34 +8,29 @@ import db from '../src/db'
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT
+const port = process.env.PORT || 8000
 
-const options = {
-  origin: '*',
+const corsOptions = {
+  origin: '*', // Allows all domains
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Explicitly allow these methods
+  preflightContinue: false, // Responses to preflight requests don't pass control to next middleware
+  optionsSuccessStatus: 204, // Status to return for successful OPTIONS requests
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Specify allowed headers
+  credentials: true, // Allow credentials
+  exposedHeaders: ['Content-ID', 'X-Response-Time'], // Headers that are safe to expose to the API of a CORS API specification
 }
 
-app.set('trust proxy', true)
+app.use(cors(corsOptions))
 
-app.use(express.json());
-app.use(cors(options)).use((req, res, next) => {
-  res.set('X-Content-Type-Options', 'nosniff')
-  res.set('X-Frame-Options', 'DENY')
-  res.set('Referrer-Policy', 'same-origin')
-  next()
-})
+app.use(express.json())
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'DENY');
+  res.set('Referrer-Policy', 'same-origin');
+  next();
+});
+
 db.connect()
-
-// app.use(function (_, res, next) {
-//   res.header('Content-Type', 'application/json');
-//   next();
-// });
-
-// app.use(
-//   bodyParser.urlencoded({
-//     extended: true,
-//   })
-// );
-// app.use(bodyParser.json());
 
 // API routes
 routes(app)

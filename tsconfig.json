@@ -13,6 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node"
   },
-  "include": ["src", "index.ts"],
+  "include": ["src", "api/index.ts"],
   "exclude": ["node_modules", "dist"]
 }

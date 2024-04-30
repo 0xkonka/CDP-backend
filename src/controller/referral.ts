@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { NOT_FOUND_CODE, NOT_FOUND_MSG, SERVER_ERROR_CODE, SERVER_ERROR_MSG, SUCCESS_CODE } from '../utils/response'
 import { Referral } from '../models/Referral'
 import { generateRandomCode } from '../utils'
 
-export const generateInviteCode = async (req: Request, res: Response, next: NextFunction) => {
+export const generateInviteCode = async (req: Request, res: Response) => {
   try {
     console.log('req.query', req.query)
     const count = req.query.count || 1
@@ -18,12 +18,11 @@ export const generateInviteCode = async (req: Request, res: Response, next: Next
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {
     console.log('error', error)
-    next(error)
     return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
   }
 }
 
-export const redeemInviteCode = async (req: Request, res: Response, next: NextFunction) => {
+export const redeemInviteCode = async (req: Request, res: Response) => {
   try {
     console.log('req.query', req.query)
     const { account, inviteCode, count } = req.query
@@ -44,12 +43,11 @@ export const redeemInviteCode = async (req: Request, res: Response, next: NextFu
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {
     console.log('error', error)
-    next(error)
     return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
   }
 }
 
-export const getInviteCodes = async (req: Request, res: Response, next: NextFunction) => {
+export const getInviteCodes = async (req: Request, res: Response) => {
   try {
     const account = req.params.account
 
@@ -60,7 +58,6 @@ export const getInviteCodes = async (req: Request, res: Response, next: NextFunc
     return res.status(SUCCESS_CODE).send({ result: true, data })
   } catch (error) {
     console.log('error', error)
-    next(error)
     return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
   }
 }

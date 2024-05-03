@@ -11,6 +11,7 @@ import {
   SUCCESS_CODE,
 } from '../utils/response'
 import { Point } from '../models/Point'
+import { Referral } from '../models/Referral'
 
 export const distributeXP = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,7 +22,7 @@ export const distributeXP = async (req: Request, res: Response, next: NextFuncti
     }
 
     const result = await Point.findOneAndUpdate({ account }, { xpPoint }, { new: true, upsert: true })
-    
+
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {
     console.log('error', error)
@@ -42,8 +43,8 @@ export const setMultiplier = async (req: Request, res: Response, next: NextFunct
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid multiplier' })
     }
 
-    const result = await Point.findOneAndUpdate({ account }, { multiplier, endTimestamp }, { new: true, upsert: true })
-    
+    await Point.findOneAndUpdate({ account }, { multiplier, endTimestamp }, { new: true, upsert: true })
+
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {
     console.log('error', error)
@@ -51,3 +52,46 @@ export const setMultiplier = async (req: Request, res: Response, next: NextFunct
     return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
   }
 }
+
+export const getUserPoint = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const account = req.params.account
+
+    if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+
+    const point = await Point.findOne({ account })
+
+    const rank = await Point.aggregate([
+      {
+        $sort: { xpPoint: -1 }, // Sort documents by xpPoint in descending order
+      },
+      {
+        $setWindowFields: {
+          sortBy: { xpPoint: -1 },
+          output: {
+            rank: {
+              $rank: {},
+            },
+          },
+        },
+      },
+      {
+        $match: { account },
+      },
+      {
+        $project: {
+          // Reshape the output to only include the rank in the specified format
+          _id: 0, // Exclude the _id field
+          rank: '$rank', // Nest the rank inside another rank object
+        },
+      },
+    ])
+    return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, data: { point, rank } })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+

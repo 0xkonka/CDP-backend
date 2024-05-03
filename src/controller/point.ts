@@ -78,14 +78,9 @@ export const getUserPoint = async (req: Request, res: Response, next: NextFuncti
       {
         $match: { account },
       },
-      {
-        $project: {
-          // Reshape the output to only include the rank in the specified format
-          _id: 0, // Exclude the _id field
-          rank: '$rank', // Nest the rank inside another rank object
-        },
-      },
+
     ])
+    
     return res.status(SUCCESS_CODE).send({ result: true, data: { point, rank: rank[0].rank } })
   } catch (error) {
     console.log('error', error)

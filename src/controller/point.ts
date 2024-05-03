@@ -86,7 +86,7 @@ export const getUserPoint = async (req: Request, res: Response, next: NextFuncti
         },
       },
     ])
-    return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, data: { point, rank } })
+    return res.status(SUCCESS_CODE).send({ result: true, data: { point, rank: rank[0].rank } })
   } catch (error) {
     console.log('error', error)
     next(error)

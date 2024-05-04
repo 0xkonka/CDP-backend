@@ -89,15 +89,15 @@ export const getUserReferral = async (req: Request, res: Response, next: NextFun
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
-    const isRedeemed = await Referral.findOne({ redeemer: account })
+    const userData = await Referral.findOne({ redeemer: account })
 
-    if (isRedeemed) {
-      let referral = await Referral.find({ owner: account })
-      for (let i = 0; i < referral.length; i++) {
-        const redeemerPoint = await Point.findOne({ account: referral[i].redeemer })
-        if (redeemerPoint) referral[i] = { ...referral[i].toObject(), xpPoint: redeemerPoint.xpPoint }
+    if (userData) {
+      let redeemerData = await Referral.find({ owner: account })
+      for (let i = 0; i < redeemerData.length; i++) {
+        const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer })
+        if (redeemerPoint) redeemerData[i] = { ...redeemerData[i].toObject(), xpPoint: redeemerPoint.xpPoint }
       }
-      return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, data: referral })
+      return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, referralCode: userData.inviteCode,  data: redeemerData })
     }
     return res.status(SUCCESS_CODE).send({ result: true, redeemed: false })
   } catch (error) {

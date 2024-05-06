@@ -10,7 +10,15 @@ dotenv.config()
 const app = express()
 const port = process.env.PORT
 const corsOptions = {
-  origin: ['https://tren-staging.vercel.app', 'http://localhost:3000'], // Allowed origins
+  // origin: ['https://tren-staging.vercel.app', 'http://localhost:3000'], // TODO: use this in final version
+  origin: function (origin, callback) {
+    if (!origin || origin.match(/^.+\.vercel\.app$/) || origin === 'http://localhost:3000') {
+      // Allow if it's a Vercel deployment or local development
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
 };

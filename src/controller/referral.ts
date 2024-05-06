@@ -89,7 +89,7 @@ export const getUserReferral = async (req: Request, res: Response, next: NextFun
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
-    const userData = await Referral.findOne({ redeemer: account })
+    const userData = await Referral.findOne({ redeemed: true, redeemer: account })
 
     if (userData) {
       let redeemerData = await Referral.find({ owner: account })

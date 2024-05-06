@@ -80,8 +80,7 @@ export const getUserPoint = async (req: Request, res: Response, next: NextFuncti
       },
 
     ])
-    
-    return res.status(SUCCESS_CODE).send({ result: true, data: { point, rank: rank[0].rank } })
+    return res.status(SUCCESS_CODE).send({ result: true, data: { point, rank: rank.length >= 1 ? rank[0].rank : 0 } })
   } catch (error) {
     console.log('error', error)
     next(error)

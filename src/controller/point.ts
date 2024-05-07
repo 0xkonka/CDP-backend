@@ -11,7 +11,6 @@ import {
   SUCCESS_CODE,
 } from '../utils/response'
 import { Point } from '../models/Point'
-import { Referral } from '../models/Referral'
 
 export const distributeXP = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,9 +20,13 @@ export const distributeXP = async (req: Request, res: Response, next: NextFuncti
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account' })
     }
 
-    const result = await Point.findOneAndUpdate({ account }, { xpPoint }, { new: true, upsert: true })
+    const existingPoint = await Point.findOne({ account })
 
-    return res.status(SUCCESS_CODE).send({ result: true })
+    const newXPPoint = existingPoint ? existingPoint.xpPoint + xpPoint : xpPoint
+
+    await Point.findOneAndUpdate({ account }, { xpPoint: newXPPoint }, { new: true, upsert: true })
+
+    return res.status(SUCCESS_CODE).send({ result: true, data: newXPPoint })
   } catch (error) {
     console.log('error', error)
     next(error)
@@ -38,6 +41,9 @@ export const setMultiplier = async (req: Request, res: Response, next: NextFunct
     if (!account) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid account' })
     }
+
+    if (endTimestamp < Math.floor(Date.now() / 1000))
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'timestamp should be bigger than current time' })
 
     if (!multiplier && multiplier < 1) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid multiplier' })
@@ -78,7 +84,6 @@ export const getUserPoint = async (req: Request, res: Response, next: NextFuncti
       {
         $match: { account },
       },
-
     ])
     return res.status(SUCCESS_CODE).send({ result: true, data: { point, rank: rank.length >= 1 && rank[0].rank } })
   } catch (error) {
@@ -87,5 +92,3 @@ export const getUserPoint = async (req: Request, res: Response, next: NextFuncti
     return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
   }
 }
-
-

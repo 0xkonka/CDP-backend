@@ -1,5 +1,5 @@
-import { distributeXP, getUserPoint, setMultiplier } from './controller/point';
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode } from './controller/referral';
+import { distributeXP, getUserPoint, setMultiplier } from '../controller/point';
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode } from '../controller/referral';
 
 export default function routes(app: any) {
   /**

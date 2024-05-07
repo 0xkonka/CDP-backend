@@ -40,7 +40,7 @@ const swaggerOptions = {
     ],
   },
   // Paths to files containing OpenAPI definitions
-  apis: [`src/routes.ts`],
+  apis: [`src/routes/index.ts`],
 }
 
 // [`${__dirname}/routes/abc.js`]

@@ -4,6 +4,7 @@ import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
 import bodyParser from "body-parser";
+import morgan from "morgan";
 
 import routes from '../src/routes'
 import db from '../src/db'
@@ -40,7 +41,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: [`src/routes/index.ts` , 'dist/src/routes/index.js'],
+  apis: [`src/routes/index.ts`, 'dist/src/routes/index.js'],
 }
 
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'
@@ -62,8 +63,11 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
 }
-app.use(cors(corsOptions))
+
 app.use(bodyParser.json());
+app.use(morgan("dev"));
+app.use(cors(corsOptions))
+
 
 app.use(express.json())
 app.use((req, res, next) => {

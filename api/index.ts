@@ -75,7 +75,19 @@ app.use((req, res, next) => {
 db.connect()
 
 // API routes
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {explorer: true}));
+
+var options = {
+  swaggerOptions: {
+      url: "/api-docs/swagger.json",
+  },
+}
+
+app.use('/api-docs', function(req : any, res : any, next : any){
+  swaggerSpec.host = req.get('host');
+  req.swaggerDoc = swaggerSpec;
+  next();
+}, swaggerUi.serveFiles(swaggerSpec, options), swaggerUi.setup());
 
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');

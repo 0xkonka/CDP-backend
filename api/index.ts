@@ -62,7 +62,7 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
 };
-app.use(cors())
+app.use(cors(corsOptions))
 
 app.use(express.json())
 app.use((req, res, next) => {
@@ -77,6 +77,11 @@ db.connect()
 // API routes
 routes(app)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 app.get('/ping', (req, res, next) => {
   res.send('ok')

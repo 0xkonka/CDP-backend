@@ -44,6 +44,9 @@ const swaggerOptions = {
   apis: ['./src/routes.ts'],
 };
 
+const CSS_URL =
+  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 const corsOptions = {
@@ -75,7 +78,7 @@ app.use((req, res, next) => {
 db.connect()
 
 // API routes
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,  { customCssUrl: CSS_URL }));
 
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');

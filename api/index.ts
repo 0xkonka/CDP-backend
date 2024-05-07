@@ -1,6 +1,8 @@
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 import routes from '../src/routes'
 import db from '../src/db'
@@ -10,17 +12,57 @@ dotenv.config()
 const app = express()
 const port = process.env.PORT || 8000
 
-const corsOptions = {
-  origin: '*', // Allows all domains
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Explicitly allow these methods
-  preflightContinue: false, // Responses to preflight requests don't pass control to next middleware
-  optionsSuccessStatus: 204, // Status to return for successful OPTIONS requests
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Specify allowed headers
-  credentials: true, // Allow credentials
-  exposedHeaders: ['Content-ID', 'X-Response-Time'], // Headers that are safe to expose to the API of a CORS API specification
-}
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Tren Express API',
+      version: '1.0.0',
+      description:
+        'This is a REST API application made with Express. It retrieves data from JSONPlaceholder.',
+      license: {
+        name: 'Licensed Under MIT',
+        url: 'https://spdx.org/licenses/MIT.html',
+      },
+      contact: {
+        name: 'JSONPlaceholder',
+        url: 'https://jsonplaceholder.typicode.com',
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:8000',
+        description: 'Local Server URL',
+      },
+      {
+        url: 'https://be-express-lime.vercel.app/',
+        description: 'Backend Server URL',
+      },
+    ],
+  },
+  // Paths to files containing OpenAPI definitions
+  apis: ['./src/routes.ts'],
+};
 
-app.use(cors(corsOptions))
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+const corsOptions = {
+  // origin: ['https://tren-staging.vercel.app', 'http://localhost:3000'], // TODO: use this in final version
+  origin: function (origin : any, callback : any) {
+    if(!origin){
+      callback(null, true);
+    }
+    else if (origin.match(/^.+\.vercel\.app$/) || origin === 'http://localhost:3000') {
+      // Allow if it's a Vercel deployment or local development
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
+};
+app.use(cors())
 
 app.use(express.json())
 app.use((req, res, next) => {
@@ -34,6 +76,7 @@ db.connect()
 
 // API routes
 routes(app)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/ping', (req, res, next) => {
   res.send('ok')

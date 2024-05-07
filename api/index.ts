@@ -40,8 +40,10 @@ const swaggerOptions = {
     ],
   },
   // Paths to files containing OpenAPI definitions
-  apis: ['./src/routes.ts'],
+  apis: [`src/routes.ts`],
 }
+
+// [`${__dirname}/routes/abc.js`]
 
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'
 

@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
+import bodyParser from "body-parser";
 
 import routes from '../src/routes'
 import db from '../src/db'
@@ -62,6 +63,7 @@ const corsOptions = {
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
 }
 app.use(cors(corsOptions))
+app.use(bodyParser.json());
 
 app.use(express.json())
 app.use((req, res, next) => {

@@ -75,7 +75,6 @@ app.use((req, res, next) => {
 db.connect()
 
 // API routes
-routes(app)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/swagger.json', (req, res) => {
@@ -87,6 +86,8 @@ app.get('/ping', (req, res, next) => {
   res.send('ok')
   next()
 })
+
+routes(app)
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)

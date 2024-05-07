@@ -40,7 +40,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: [`src/routes/index.ts`],
+  apis: [`src/routes/index.ts` , 'dist/src/routes/index.js'],
 }
 
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'

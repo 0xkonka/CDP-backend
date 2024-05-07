@@ -72,8 +72,6 @@ app.use((req, res, next) => {
   next()
 })
 
-db.connect()
-
 // API routes
 app.use(
   '/api-docs',
@@ -94,6 +92,10 @@ app.get('/ping', (req, res, next) => {
   res.send('ok')
   next()
 })
+
+app.use(express.static("./"));
+
+db.connect()
 
 routes(app)
 

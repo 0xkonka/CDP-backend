@@ -46,7 +46,6 @@ const swaggerOptions = {
 // [`${__dirname}/routes/abc.js`]
 
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'
-const JS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.js'
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions)
 
@@ -83,7 +82,6 @@ app.use(
     // customCss:
     //   '.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
     customCssUrl: CSS_URL,
-    customJs: JS_URL
   })
 )
 

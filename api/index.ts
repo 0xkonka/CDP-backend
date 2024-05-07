@@ -14,7 +14,7 @@ const port = process.env.PORT || 8000
 
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    swagger: '2.0',
     info: {
       title: 'Tren Express API',
       version: '1.0.0',
@@ -82,6 +82,7 @@ app.use(
     customCss:
       '.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
     customCssUrl: CSS_URL,
+    explorer: true
   })
 )
 

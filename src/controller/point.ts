@@ -42,7 +42,7 @@ export const setMultiplier = async (req: Request, res: Response, next: NextFunct
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid account' })
     }
 
-    if (endTimestamp < Math.floor(Date.now() / 1000))
+    if (endTimestamp > 0 && endTimestamp < Math.floor(Date.now() / 1000))
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'timestamp should be bigger than current time' })
 
     if (!multiplier && multiplier < 1) {
@@ -62,6 +62,8 @@ export const setMultiplier = async (req: Request, res: Response, next: NextFunct
 export const getUserPoint = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const account = req.params.account
+
+    console.log('account', account)
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 

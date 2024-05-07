@@ -1,7 +1,21 @@
-import { distributeXP, getUserPoint, setMultiplier } from '../controller/point';
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode } from '../controller/referral';
+import { generateToken } from '../controller/auth'
+import { distributeXP, getUserPoint, setMultiplier } from '../controller/point'
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode } from '../controller/referral'
+import { verifyToken } from '../middleware/authMiddleware'
 
 export default function routes(app: any) {
+  // app.get('/api/admin/generatetoken', generateToken)
+
+  /**
+   * @swagger
+   * components:
+   *   securitySchemes:
+   *     bearerAuth:
+   *       type: http
+   *       scheme: bearer
+   *       bearerFormat: JWT
+   */
+
   /**
    * @swagger
    * /api/referral/admin/generate:
@@ -9,6 +23,8 @@ export default function routes(app: any) {
    *     summary: Generate an invite code
    *     tags: [Admin]
    *     description: Generate a new invite code for use in referral promotions.
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -25,7 +41,7 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.post('/api/referral/admin/generate', generateInviteCode);
+  app.post('/api/referral/admin/generate', verifyToken, generateInviteCode)
 
   /**
    * @swagger
@@ -34,6 +50,8 @@ export default function routes(app: any) {
    *     summary: Distribute experience points
    *     tags: [Admin]
    *     description: Distributes XP to a specific user account.
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -55,7 +73,7 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.post('/api/point/admin/distributeXP', distributeXP);
+  app.post('/api/point/admin/distributeXP', verifyToken, distributeXP)
 
   /**
    * @swagger
@@ -64,6 +82,8 @@ export default function routes(app: any) {
    *     summary: Set the multiplier for experience points
    *     tags: [Admin]
    *     description: Sets a multiplier for experience points for a specific account, applicable until a specified end time.
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -88,7 +108,7 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.post('/api/point/admin/setMultiplier', setMultiplier);
+  app.post('/api/point/admin/setMultiplier', verifyToken, setMultiplier)
 
   /**
    * @swagger
@@ -119,7 +139,7 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.post('/api/referral/user/validate', validateInviteCode);
+  app.post('/api/referral/user/validate', validateInviteCode)
 
   /**
    * @swagger
@@ -156,7 +176,7 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.post('/api/referral/user/redeem', redeemInviteCode);
+  app.post('/api/referral/user/redeem', redeemInviteCode)
 
   /**
    * @swagger
@@ -180,7 +200,7 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.get('/api/referral/user/:account', getUserReferral);
+  app.get('/api/referral/user/:account', getUserReferral)
 
   /**
    * @swagger
@@ -204,5 +224,5 @@ export default function routes(app: any) {
    *       500:
    *         description: Internal server error.
    */
-  app.get('/api/point/user/:account', getUserPoint);
+  app.get('/api/point/user/:account', getUserPoint)
 }

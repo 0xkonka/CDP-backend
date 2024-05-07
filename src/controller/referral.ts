@@ -21,7 +21,7 @@ export const generateInviteCode = async (req: Request, res: Response, next: Next
     for (let i = 0; i < +count; i++) {
       const inviteCode = generateRandomCode()
 
-      const result = await Referral.create({ owner: 'admin', inviteCode })
+      await Referral.create({ owner: 'admin', inviteCode })
     }
 
     return res.status(SUCCESS_CODE).send({ result: true })

@@ -39,11 +39,8 @@ const swaggerOptions = {
       },
     ],
   },
-  // Paths to files containing OpenAPI definitions
   apis: [`src/routes/index.ts`],
 }
-
-// [`${__dirname}/routes/abc.js`]
 
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'
 
@@ -54,7 +51,7 @@ const corsOptions = {
   origin: function (origin: any, callback: any) {
     if (!origin) {
       callback(null, true)
-    } else if (origin.match(/^.+\.vercel\.app$/) || origin === 'http://localhost:3000') {
+    } else if (origin.match(/^.+\.vercel\.app$/) || origin === 'http://localhost:3000' || origin === 'http://localhost:8000') {
       // Allow if it's a Vercel deployment or local development
       callback(null, true)
     } else {

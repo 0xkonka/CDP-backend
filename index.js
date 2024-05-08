@@ -15,7 +15,7 @@ import db from './src/db/index.js'
 // CDN CSS
 
 const CSS_URL =
-  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css";
 
 const app = express();
 
@@ -63,7 +63,7 @@ db.connect()
 app.use(
   "/api-docs",
   swaggerUI.serve,
-  swaggerUI.setup(specs)
+  swaggerUI.setup(specs, { customCssUrl: CSS_URL })
 );
 
 // Here we are calling the basic html

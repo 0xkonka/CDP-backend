@@ -72,7 +72,7 @@ app.use(
 app.use("/", helloRouter);
 // Use the router from the post.js file
 app.use("/api", apiRouter);
-app.use("/post", postRouter);
+// app.use("/post", postRouter);
 
 app.listen(PORT, () => console.log(`Server runs on port ${PORT}`));
 

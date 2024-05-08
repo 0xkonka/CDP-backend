@@ -17,6 +17,7 @@ import db from './src/db/index.js'
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'
 let customCss = `
   .swagger-ui .opblock .opblock-summary-path { max-width: 100% !important} 
+  .swagger-ui .opblock .opblock-summary-description { padding: 0 10px }
   `
 
 const app = express()

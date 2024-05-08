@@ -8,6 +8,8 @@ import morgan from 'morgan'
 
 import { router } from './src/routes/router'
 import db from './src/db'
+
+import helloRouter from './src/routes/hello'
 import postRouter from './src/routes/posts'
 
 dotenv.config()
@@ -101,6 +103,7 @@ app.get('/ping', (req, res, next) => {
   next()
 })
 
+app.use("/", helloRouter);
 app.use('/api', router)
 app.use('/posts', postRouter)
 

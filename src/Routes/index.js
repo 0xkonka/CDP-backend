@@ -14,6 +14,69 @@ app.use(bodyParser.json()) // to use body object in requests
 /**
  * @swagger
  * components:
+ *   schemas:
+ *     Referral:
+ *       type: object
+ *       required:
+ *         - owner
+ *         - inviteCode
+ *       properties:
+ *         owner:
+ *           type: string
+ *           description: owner of inviteCode
+ *         inviteCode:
+ *           type: string
+ *           description: inviteCode
+ *         redeemer:
+ *           type: number
+ *           description: user who redeemed inviteCode
+ *         redeemed:
+ *           type: boolean
+ *           descripton: redeemed or not
+ *         signMsg:
+ *           type: string
+ *           descripton: sign Msg
+ *       example:
+ *         account: 0xf812844A1f3187F6e31336d3684FAd2dD31219E3
+ *         inviteCode: F7N6C
+ *         redeemer: 0x8398f002122DcD0EcfDBB0725Af7637D4C8fF1b1
+ *         redeemed: true
+ *         signMsg: 
+ *
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Point:
+ *       type: object
+ *       required:
+ *         - account
+ *       properties:
+ *         account:
+ *           type: string
+ *           description: user wallet address
+ *         xpPoint:
+ *           type: number
+ *           description: xpPoint
+ *         multiplier:
+ *           type: number
+ *           description: multiplier
+ *         endTimestamp:
+ *           type: number
+ *           descripton: multiplier duration til time, if 0 -> endless
+ *       example:
+ *         account: 0x8398f002122DcD0EcfDBB0725Af7637D4C8fF1b1
+ *         xpPoint: 14000
+ *         multiplier: 1.8
+ *         endTimestamp: 0
+ *
+ */
+
+/**
+ * @swagger
+ * components:
  *   securitySchemes:
  *     bearerAuth:
  *       type: http

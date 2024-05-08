@@ -8,6 +8,7 @@ import morgan from 'morgan'
 
 import { router } from './src/routes/router'
 import db from './src/db'
+import postRouter from './src/routes/posts'
 
 dotenv.config()
 
@@ -101,6 +102,7 @@ app.get('/ping', (req, res, next) => {
 })
 
 app.use('/api', router)
+app.use('/posts', postRouter)
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)

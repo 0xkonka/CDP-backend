@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -9,10 +9,10 @@ import {
   SERVER_ERROR_CODE,
   SERVER_ERROR_MSG,
   SUCCESS_CODE,
-} from '../utils/response'
-import { Point } from '../models/Point'
+} from '../utils/response.js'
+import { Point } from '../models/Point.js'
 
-export const distributeXP = async (req: Request, res: Response, next: NextFunction) => {
+export const distributeXP = async (req, res, next) => {
   try {
     const { account, xpPoint = 0 } = req.body
 
@@ -34,7 +34,7 @@ export const distributeXP = async (req: Request, res: Response, next: NextFuncti
   }
 }
 
-export const setMultiplier = async (req: Request, res: Response, next: NextFunction) => {
+export const setMultiplier = async (req, res, next) => {
   try {
     const { account, multiplier, endTimestamp } = req.body
 
@@ -59,7 +59,7 @@ export const setMultiplier = async (req: Request, res: Response, next: NextFunct
   }
 }
 
-export const getUserPoint = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserPoint = async (req, res, next) => {
   try {
     const account = req.params.account
 

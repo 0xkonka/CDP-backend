@@ -4,12 +4,12 @@ import { TRENING } from '../config'
 
 const { DEPLOY_KEY } = process.env
 
-export enum Network {
-  mainnet,
-  sepolia
-}
+// export enum Network {
+//   mainnet,
+//   sepolia
+// }
 
-export const timeLock = (network: Network) => {
+export const timeLock = (network) => {
   if (!DEPLOY_KEY) {
     throw new Error('Please define the DEPLOY_KEY environment variable');
   }

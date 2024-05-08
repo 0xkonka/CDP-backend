@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 
 // Define an interface for the connection object
-interface Connection {
-  isConnected?: number;
-}
+// interface Connection {
+//   isConnected?: number;
+// }
 
-const connection: Connection = {};
+const connection = {};
 
-async function connect(): Promise<void> {
+async function connect() {
   if (connection.isConnected) {
     console.log('already connected to DB');
     return;
@@ -23,7 +23,7 @@ async function connect(): Promise<void> {
     await mongoose.disconnect();
   }
 
-  const db = await mongoose.connect(process.env.MONGODB_URI!, {
+  const db = await mongoose.connect(process.env.MONGODB_URI, {
     // useNewUrlParser: true,
     // useUnifiedTopology: true,
   });
@@ -32,7 +32,7 @@ async function connect(): Promise<void> {
   connection.isConnected = db.connections[0].readyState;
 }
 
-async function disconnect(): Promise<void> {
+async function disconnect() {
   if (connection.isConnected) {
     if (process.env.NODE_ENV === 'production') {
       await mongoose.disconnect();

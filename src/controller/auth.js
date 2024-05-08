@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -9,10 +9,10 @@ import {
   SERVER_ERROR_CODE,
   SERVER_ERROR_MSG,
   SUCCESS_CODE,
-} from '../utils/response'
+} from '../utils/response.js'
 import jwt from 'jsonwebtoken'
 
-export const generateToken = async (req: Request, res: Response, next: NextFunction) => {
+export const generateToken = async (req, res, next) => {
   try {
     const { secret } = req.body
     

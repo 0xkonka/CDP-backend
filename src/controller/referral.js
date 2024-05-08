@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -9,12 +9,12 @@ import {
   SERVER_ERROR_CODE,
   SERVER_ERROR_MSG,
   SUCCESS_CODE,
-} from '../utils/response'
-import { Referral } from '../models/Referral'
-import { generateRandomCode } from '../utils'
-import { Point } from '../models/Point'
+} from '../utils/response.js'
+import { Referral } from '../models/Referral.js'
+import { generateRandomCode } from '../utils/index.js'
+import { Point } from '../models/Point.js'
 
-export const generateInviteCode = async (req: Request, res: Response, next: NextFunction) => {
+export const generateInviteCode = async (req, res, next) => {
   try {
     const count = req.body.count || 1
 
@@ -32,7 +32,7 @@ export const generateInviteCode = async (req: Request, res: Response, next: Next
   }
 }
 
-export const validateInviteCode = async (req: Request, res: Response, next: NextFunction) => {
+export const validateInviteCode = async (req, res, next) => {
   try {
     console.log('req.body', req.body)
     const { inviteCode } = req.body
@@ -56,7 +56,7 @@ export const validateInviteCode = async (req: Request, res: Response, next: Next
   }
 }
 
-export const redeemInviteCode = async (req: Request, res: Response, next: NextFunction) => {
+export const redeemInviteCode = async (req, res, next) => {
   try {
     const { account, inviteCode, count } = req.body
 
@@ -83,7 +83,7 @@ export const redeemInviteCode = async (req: Request, res: Response, next: NextFu
   }
 }
 
-export const getUserReferral = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserReferral = async (req, res, next) => {
   try {
     const account = req.params.account
 

@@ -8,6 +8,7 @@ import bodyParser from "body-parser";
 
 // Import the router from the hello.js file
 import postRouter from "./src/Routes/posts.js";
+import apiRouter from "./src/Routes/index.js";
 import helloRouter from "./src/hello.js";
 
 import db from './src/db/index.js'
@@ -42,6 +43,10 @@ const options = {
     },
     servers: [
       {
+        url: "http://localhost:2001/",
+        description: "My API Documentation",
+      },
+      {
         url: "https://nodejs-swagger-api.vercel.app/",
         description: "My API Documentation",
       },
@@ -66,7 +71,8 @@ app.use(
 // Use the router from the hello.js file
 app.use("/", helloRouter);
 // Use the router from the post.js file
-app.use("/api", postRouter);
+app.use("/api", apiRouter);
+app.use("/post", postRouter);
 
 app.listen(PORT, () => console.log(`Server runs on port ${PORT}`));
 

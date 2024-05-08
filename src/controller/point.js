@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -9,8 +9,8 @@ import {
   SERVER_ERROR_CODE,
   SERVER_ERROR_MSG,
   SUCCESS_CODE,
-} from '../utils/response'
-import { Point } from '../models/Point'
+} from '../utils/response.js'
+import { Point } from '../models/Point.js'
 
 export const distributeXP = async (req, res, next) => {
   try {

@@ -3,10 +3,10 @@ import dotenv from 'dotenv'
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
-import bodyParser from "body-parser";
-import morgan from "morgan";
+import bodyParser from 'body-parser'
+import morgan from 'morgan'
 
-import router from "./src/routes/router";
+import { router } from './src/routes/router'
 import db from './src/db'
 
 dotenv.config()
@@ -15,15 +15,19 @@ const app = express()
 
 const port = process.env.PORT || 8000
 
-app.use(bodyParser.json());
-app.use(morgan("dev"));
+app.use(bodyParser.json())
+app.use(morgan('dev'))
 
 const corsOptions = {
   // origin: ['https://tren-staging.vercel.app', 'http://localhost:3000'], // TODO: use this in final version
   origin: function (origin: any, callback: any) {
     if (!origin) {
       callback(null, true)
-    } else if (origin.match(/^.+\.vercel\.app$/) || origin === 'http://localhost:3000' || origin === 'http://localhost:8000') {
+    } else if (
+      origin.match(/^.+\.vercel\.app$/) ||
+      origin === 'http://localhost:3000' ||
+      origin === 'http://localhost:8000'
+    ) {
       // Allow if it's a Vercel deployment or local development
       callback(null, true)
     } else {
@@ -70,7 +74,6 @@ const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions)
 
-
 // app.use(express.json())
 // app.use((req, res, next) => {
 //   res.set('X-Content-Type-Options', 'nosniff')
@@ -102,7 +105,7 @@ app.get('/ping', (req, res, next) => {
 
 db.connect()
 
-app.use("/", router);
+app.use('/api', router)
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)

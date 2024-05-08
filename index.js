@@ -7,7 +7,6 @@ import swaggerJsDoc from "swagger-jsdoc";
 import bodyParser from "body-parser";
 
 // Import the router from the hello.js file
-import postRouter from "./src/Routes/posts.js";
 import apiRouter from "./src/Routes/index.js";
 import helloRouter from "./src/hello.js";
 
@@ -72,7 +71,6 @@ app.use(
 app.use("/", helloRouter);
 // Use the router from the post.js file
 app.use("/api", apiRouter);
-app.use("/post", postRouter);
 
 app.listen(PORT, () => console.log(`Server runs on port ${PORT}`));
 

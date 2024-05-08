@@ -42,28 +42,22 @@ app.use(cors(corsOptions))
 
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Tren Express API',
-      version: '1.0.0',
-      description: 'This is a REST API application made with Express. It retrieves data from JSONPlaceholder.',
-      license: {
-        name: 'Licensed Under MIT',
-        url: 'https://spdx.org/licenses/MIT.html',
-      },
+      title: "Library API",
+      version: "1.0.0",
+      description: "A simple Express Library API",
+      termsOfService: "http://example.com/terms/",
       contact: {
-        name: 'JSONPlaceholder',
-        url: 'https://jsonplaceholder.typicode.com',
+        name: "API Support",
+        url: "http://www.exmaple.com/support",
+        email: "support@example.com",
       },
     },
     servers: [
       {
-        url: 'http://localhost:8000',
-        description: 'Local Server URL',
-      },
-      {
-        url: 'https://be-express-lime.vercel.app/',
-        description: 'Backend Server URL',
+        url: "https://nodejs-swagger-api.vercel.app/",
+        description: "My API Documentation",
       },
     ],
   },
@@ -82,7 +76,10 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions)
 //   next()
 // })
 
+db.connect()
+
 // API routes
+
 app.use(
   '/api-docs',
   swaggerUi.serve,
@@ -102,8 +99,6 @@ app.get('/ping', (req, res, next) => {
   res.send('ok')
   next()
 })
-
-db.connect()
 
 app.use('/api', router)
 

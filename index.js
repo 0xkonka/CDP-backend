@@ -63,7 +63,7 @@ db.connect()
 app.use(
   "/api-docs",
   swaggerUI.serve,
-  swaggerUI.setup(specs, { customCssUrl: 'public/swagger-ui.min.css' })
+  swaggerUI.setup(specs, { customCssUrl: 'src/views/public/swagger-ui.min.css' })
 );
 
 // Here we are calling the basic html

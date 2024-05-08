@@ -9,6 +9,65 @@ export default function routes() {
   const router = express.Router()
   router.use(bodyParser.json())
 
+  /**
+   * @swagger
+   * components:
+   *   schemas:
+   *     Post:
+   *       type: object
+   *       required:
+   *         - userId
+   *         - title
+   *         - body
+   *       properties:
+   *         id:
+   *           type: integer
+   *           description: The Auto-generated id of a post
+   *         userId:
+   *           type: integer
+   *           description: id of author
+   *         title:
+   *           type: string
+   *           description: title of post
+   *         body:
+   *           type: string
+   *           descripton: content of post
+   *       example:
+   *         id: 1
+   *         userId: 1
+   *         title: my title
+   *         body: my article
+   *
+   */
+
+  /**
+   * @swagger
+   *  tags:
+   *    name: Posts
+   *    description: posts of users
+   */
+
+  /**
+   * @swagger
+   * /posts:
+   *   get:
+   *     summary: Returns all posts
+   *     tags: [Posts]
+   *     responses:
+   *       200:
+   *         description: the list of the posts
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Post'
+   */
+
+  router.get('/', (req, res) => {
+    res.send('ok')
+  })
+
   // app.get('/api/admin/generatetoken', generateToken)
 
   /**

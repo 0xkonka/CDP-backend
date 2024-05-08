@@ -6,8 +6,8 @@ import swaggerJsdoc from 'swagger-jsdoc'
 import bodyParser from "body-parser";
 import morgan from "morgan";
 
-import router from "../src/routes/router";
-import db from '../src/db'
+import router from "./src/routes/router";
+import db from './src/db'
 
 dotenv.config()
 
@@ -63,7 +63,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: [`src/routes/index.ts`, 'dist/src/routes/index.js'],
+  apis: ['src/**/*.ts'],
 }
 
 const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css'

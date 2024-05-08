@@ -1,14 +1,13 @@
-import express from "express";
-import bodyParser from "body-parser";
+import express from 'express'
+import bodyParser from 'body-parser'
 import { generateToken } from '../controller/auth'
 import { distributeXP, getUserPoint, setMultiplier } from '../controller/point'
 import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode } from '../controller/referral'
 import { verifyToken } from '../middleware/authMiddleware'
 
 export default function routes() {
-
-  const router = express.Router();
-  router.use(bodyParser.json());
+  const router = express.Router()
+  router.use(bodyParser.json())
 
   // app.get('/api/admin/generatetoken', generateToken)
 

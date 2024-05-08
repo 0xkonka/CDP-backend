@@ -24,7 +24,7 @@ app.use(bodyParser.json()) // to use body object in requests
 /**
  * @swagger
  *   post:
- *     summary: /api/referral/admin/generate: Generate an invite code 
+ *     summary: /api/referral/admin/generate - Generate an invite code 
  *     tags: [Admin]
  *     description: Generate a new invite code for use in referral promotions.
  *     security:
@@ -50,7 +50,7 @@ app.post('/referral/admin/generate', verifyToken, generateInviteCode)
 /**
  * @swagger
  *   post:
- *     summary: /api/point/admin/distributeXP: Distribute experience points
+ *     summary: /api/point/admin/distributeXP - Distribute experience points
  *     tags: [Admin]
  *     description: Distributes XP to a specific user account.
  *     security:
@@ -81,7 +81,7 @@ app.post('/point/admin/distributeXP', verifyToken, distributeXP)
 /**
  * @swagger
  *   post:
- *     summary: /api/point/admin/setMultiplier: Set the multiplier for experience points
+ *     summary: /api/point/admin/setMultiplier - Set the multiplier for experience points
  *     tags: [Admin]
  *     description: Sets a multiplier for experience points for a specific account, applicable until a specified end time.
  *     security:
@@ -115,7 +115,7 @@ app.post('/point/admin/setMultiplier', verifyToken, setMultiplier)
 /**
  * @swagger
  *   post:
- *     summary: /api/referral/user/validate: Validate an invite code
+ *     summary: /api/referral/user/validate - Validate an invite code
  *     tags: [User]
  *     description: Validates if an invite code is correct and not yet redeemed.
  *     requestBody:
@@ -145,7 +145,7 @@ app.post('/referral/user/validate', validateInviteCode)
 /**
  * @swagger
  *   post:
- *     summary: /api/referral/user/redeem: Redeem an invite code
+ *     summary: /api/referral/user/redeem - Redeem an invite code
  *     tags: [User]
  *     description: Redeems an invite code to associate it with the user's account.
  *     requestBody:
@@ -181,7 +181,7 @@ app.post('/referral/user/redeem', redeemInviteCode)
 /**
  * @swagger
  *   get:
- *     summary: /api/referral/user/{account}: Get referral information for a user
+ *     summary: /api/referral/user/{account} - Get referral information for a user
  *     tags: [User]
  *     description: Retrieves referral status and details for a specific user.
  *     parameters:
@@ -204,7 +204,7 @@ app.get('/referral/user/:account', getUserReferral)
 /**
  * @swagger
  *   get:
- *     summary: /api/point/user/{account}: Get points for a user
+ *     summary: /api/point/user/{account} - Get points for a user
  *     tags: [User]
  *     description: Retrieves points and ranking information for a specific user.
  *     parameters:

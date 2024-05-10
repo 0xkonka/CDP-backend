@@ -1,4 +1,3 @@
-
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -36,20 +35,24 @@ export const distributeXP = async (req, res, next) => {
 
 export const setMultiplier = async (req, res, next) => {
   try {
-    const { account, multiplier, endTimestamp } = req.body
+    const { account, multiplier, period = 1 } = req.body
 
     if (!account) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid account' })
     }
 
-    if (endTimestamp > 0 && endTimestamp < Math.floor(Date.now() / 1000))
-      return res.status(BAD_REQ_CODE).json({ result: false, message: 'timestamp should be bigger than current time' })
+    // if (endTimestamp > 0 && endTimestamp < Math.floor(Date.now() / 1000))
+    //   return res.status(BAD_REQ_CODE).json({ result: false, message: 'timestamp should be bigger than current time' })
 
     if (!multiplier && multiplier < 1) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid multiplier' })
     }
 
-    await Point.findOneAndUpdate({ account }, { multiplier, endTimestamp }, { new: true, upsert: true })
+    await Point.findOneAndUpdate(
+      { account },
+      { multiplier, endTimestamp: Math.floor(Date.now() / 1000) + period * 24 * 3600 },
+      { new: true, upsert: true }
+    )
 
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {

@@ -42,11 +42,11 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:2001/',
+        url: 'https://be-express-lime.vercel.app/',
         description: 'My API Documentation',
       },
       {
-        url: 'https://be-express-lime.vercel.app/',
+        url: 'http://localhost:2001/',
         description: 'My API Documentation',
       },
     ],

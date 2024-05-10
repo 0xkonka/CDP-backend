@@ -5,12 +5,18 @@ import dotenv from 'dotenv'
 import swaggerUI from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
 import bodyParser from 'body-parser'
-
-// Import the router from the hello.js file
 import apiRouter from './src/Routes/index.js'
 import helloRouter from './src/hello.js'
-
 import db from './src/db/index.js'
+
+dotenv.config()
+const PORT = process.env.PORT || 2001
+
+const corsOptions = {
+  origin: ['https://tren-staging.vercel.app', 'http://localhost:3000', 'http://localhost:2001'], // Allowed origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
+}
 
 // CDN CSS
 
@@ -20,16 +26,7 @@ let customCss = `
   .swagger-ui .opblock .opblock-summary-description { padding: 0 10px }
   `
 
-const app = express()
-
-app.use(bodyParser.json()) // to use body object in requests
-const PORT = process.env.PORT || 2001
-dotenv.config()
-
-app.use(morgan('dev'))
-app.use(cors())
-
-const options = {
+const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -58,17 +55,24 @@ const options = {
   apis: ['src/**/*.js'],
 }
 
-const specs = swaggerJsDoc(options)
-// app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+const specs = swaggerJsDoc(swaggerOptions)
+
+const app = express()
+
+app.use(bodyParser.json()) // to use body object in requests
+app.use(morgan('dev'))
+app.use(cors(corsOptions))
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff')
+  res.set('X-Frame-Options', 'DENY')
+  res.set('Referrer-Policy', 'same-origin')
+  next()
+})
 
 db.connect()
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs, { customCssUrl: CSS_URL, customCss }))
-
-// Here we are calling the basic html
-// Use the router from the hello.js file
 app.use('/', helloRouter)
-// Use the router from the post.js file
 app.use('/api', apiRouter)
 
 app.listen(PORT, () => console.log(`Server runs on port ${PORT}`))

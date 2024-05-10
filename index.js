@@ -45,10 +45,10 @@ const swaggerOptions = {
         url: 'https://be-express-lime.vercel.app/',
         description: 'My API Documentation',
       },
-      {
-        url: 'http://localhost:2001/',
-        description: 'My API Documentation',
-      },
+      // {
+      //   url: 'http://localhost:2001/',
+      //   description: 'My API Documentation',
+      // },
     ],
   },
   // This is to call all the file
@@ -62,6 +62,7 @@ const app = express()
 app.use(bodyParser.json()) // to use body object in requests
 app.use(morgan('dev'))
 app.use(cors(corsOptions))
+// app.use(cors())
 app.use((req, res, next) => {
   res.set('X-Content-Type-Options', 'nosniff')
   res.set('X-Frame-Options', 'DENY')

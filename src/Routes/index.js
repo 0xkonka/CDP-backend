@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { generateToken } from '../controller/auth.js'
 import { distributeXP, getUserPoint, setMultiplier } from '../controller/point.js'
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode } from '../controller/referral.js'
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode } from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
 const app = express.Router()
@@ -110,6 +110,36 @@ app.use(bodyParser.json()) // to use body object in requests
  *         description: Internal server error.
  */
 app.post('/referral/admin/generate', verifyToken, generateInviteCode)
+
+/**
+ * @swagger
+ * /api/referral/admin/distributeCodes:
+ *   post:
+ *     summary: Distribute invite Code to user
+ *     tags: [Admin]
+ *     description: Distribute invite Codes to user
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               account:
+ *                 type: string
+ *                 description: The account identifier to which inviteCodes will be distributed.
+ *               count:
+ *                 type: number
+ *                 description: Number of invite codes to generate.
+ *     responses:
+ *       200:
+ *         description: Invite code(s) generated successfully.
+ *       500:
+ *         description: Internal server error.
+ */
+app.post('/referral/admin/distributeCodes', verifyToken, distributeInviteCode)
 
 /**
  * @swagger

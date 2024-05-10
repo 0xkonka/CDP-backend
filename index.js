@@ -10,10 +10,10 @@ import helloRouter from './src/hello.js'
 import db from './src/db/index.js'
 
 dotenv.config()
-const PORT = process.env.PORT || 2001
+const PORT = process.env.PORT || 8000
 
 const corsOptions = {
-  origin: ['https://tren-staging.vercel.app', 'http://localhost:3000', 'http://localhost:2001'], // Allowed origins
+  origin: ['https://tren-staging.vercel.app', 'http://localhost:3000', 'http://localhost:8000'], // Allowed origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
 }
@@ -30,25 +30,19 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Library API',
+      title: 'Tren Backend API',
       version: '1.0.0',
-      description: 'A simple Express Library API',
-      termsOfService: 'http://example.com/terms/',
-      contact: {
-        name: 'API Support',
-        url: 'http://www.exmaple.com/support',
-        email: 'support@example.com',
-      },
+      description: '',
     },
     servers: [
       {
         url: 'https://be-express-lime.vercel.app/',
-        description: 'My API Documentation',
+        description: 'Vercel Deployment',
       },
-      // {
-      //   url: 'http://localhost:2001/',
-      //   description: 'My API Documentation',
-      // },
+      {
+        url: 'http://localhost:8000/',
+        description: 'Local Deployment',
+      },
     ],
   },
   // This is to call all the file

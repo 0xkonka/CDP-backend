@@ -6,7 +6,7 @@ const ReferralSchema = new Schema({
     type: String,
     required: true,
   },
-  inviteCode: { type: String, required: true },
+  inviteCode: { type: String, required: true, unique: true },
   redeemer: { type: String, unique: true },
   redeemed: {
     type: Boolean,

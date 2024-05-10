@@ -1,4 +1,3 @@
-
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -19,8 +18,13 @@ export const generateInviteCode = async (req, res, next) => {
     const count = req.body.count || 1
 
     for (let i = 0; i < +count; i++) {
-      const inviteCode = generateRandomCode()
+      let inviteCode
+      let isExist
 
+      do {
+        inviteCode = generateRandomCode()
+        isExist = await Referral.findOne({ inviteCode })
+      } while (isExist) // Repeat if the code already exists
       await Referral.create({ owner: 'admin', inviteCode })
     }
 
@@ -32,9 +36,37 @@ export const generateInviteCode = async (req, res, next) => {
   }
 }
 
+export const distributeInviteCode = async (req, res, next) => {
+  try {
+    const { account, count = 1 } = req.body
+
+    if (!account) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account' })
+    }
+
+    for (let i = 0; i < +count; i++) {
+      const docsToUpdate = await Referral.find({ owner: 'admin', redeemed: false })
+        .limit(count) // Limit to 5 documents
+        .select('_id') // Only fetch the _id field
+
+      if (docsToUpdate.length == count) {
+        const idsToUpdate = docsToUpdate.map((doc) => doc._id)
+        const updateResult = await Referral.updateMany({ _id: { $in: idsToUpdate } }, { $set: { owner: account } })
+        console.log(updateResult) // Log the result of the update operation
+        return res.status(SUCCESS_CODE).send({ result: true })
+      } else {
+        res.status(BAD_REQ_CODE).send({ result: false, messages: 'Not enough inviteCodes' })
+      }
+    }
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
 export const validateInviteCode = async (req, res, next) => {
   try {
-    console.log('req.body', req.body)
     const { inviteCode } = req.body
 
     if (!inviteCode) {
@@ -61,7 +93,7 @@ export const redeemInviteCode = async (req, res, next) => {
     const { account, inviteCode, count } = req.body
 
     if (!account || !inviteCode || !count) {
-      return res.status(400).json({ result: false, message: 'Missing account or inviteCode or count' })
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account or inviteCode or count' })
     }
 
     const isAlreadyRedeemed = await Referral.findOne({ redeemer: account })
@@ -97,7 +129,9 @@ export const getUserReferral = async (req, res, next) => {
         const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer })
         if (redeemerPoint) redeemerData[i] = { ...redeemerData[i].toObject(), xpPoint: redeemerPoint.xpPoint }
       }
-      return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, referralCode: userData.inviteCode,  data: redeemerData })
+      return res
+        .status(SUCCESS_CODE)
+        .send({ result: true, redeemed: true, referralCode: userData.inviteCode, data: redeemerData })
     }
     return res.status(SUCCESS_CODE).send({ result: true, redeemed: false })
   } catch (error) {

@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { generateToken } from '../controller/auth.js'
 import { distributeXP, getUserPoint, setMultiplier } from '../controller/point.js'
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode } from '../controller/referral.js'
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes } from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
 const app = express.Router()
@@ -83,6 +83,23 @@ app.use(bodyParser.json()) // to use body object in requests
  *       scheme: bearer
  *       bearerFormat: JWT
  */
+
+/**
+ * @swagger
+ * /api/referral/admin/avalableInviteCodes:
+ *   post:
+ *     summary: Get available InviteCode list
+ *     tags: [Admin]
+ *     description: Get available InviteCode list
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Available InviteCode retrieved successfully.
+ *       500:
+ *         description: Internal server error.
+ */
+app.post('/referral/admin/avalableInviteCodes', verifyToken, getAvalableInviteCodes)
 
 /**
  * @swagger

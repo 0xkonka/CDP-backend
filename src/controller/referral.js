@@ -36,6 +36,17 @@ export const generateInviteCode = async (req, res, next) => {
   }
 }
 
+export const getAvalableInviteCodes = async (req, res, next) => {
+  try {
+    const inviteCodes = await Referral.find({ redeemed: false }).select('inviteCode')
+    return res.status(SUCCESS_CODE).send({ result: true, data: inviteCodes })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
 export const distributeInviteCode = async (req, res, next) => {
   try {
     const { account, count = 1 } = req.body

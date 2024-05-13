@@ -41,7 +41,7 @@ export const getAvalableInviteCodes = async (req, res, next) => {
     const referral = await Referral.find({ redeemed: false }).select('inviteCode')
     let availbleInviteCodes = []
     for ( let i = 0 ; i < referral.length ; i++){
-      availbleInviteCodes.push(inviteCodes[i].inviteCode)
+      availbleInviteCodes.push(referral[i].inviteCode)
     }
     return res.status(SUCCESS_CODE).send({ result: true, data: availbleInviteCodes })
   } catch (error) {

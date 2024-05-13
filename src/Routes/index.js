@@ -86,8 +86,8 @@ app.use(bodyParser.json()) // to use body object in requests
 
 /**
  * @swagger
- * /api/referral/admin/avalableInviteCodes:
- *   get:
+ * /api/referral/admin/availableInviteCodes:
+ *   post:
  *     summary: Get available InviteCode list
  *     tags: [Admin]
  *     description: Get available InviteCode list
@@ -99,7 +99,7 @@ app.use(bodyParser.json()) // to use body object in requests
  *       500:
  *         description: Internal server error.
  */
-app.get('/referral/admin/avalableInviteCodes', verifyToken, getAvalableInviteCodes)
+app.post('/referral/admin/availableInviteCodes', verifyToken, getAvalableInviteCodes)
 
 /**
  * @swagger

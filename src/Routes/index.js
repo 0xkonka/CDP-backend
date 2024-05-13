@@ -87,7 +87,7 @@ app.use(bodyParser.json()) // to use body object in requests
 /**
  * @swagger
  * /api/referral/admin/avalableInviteCodes:
- *   post:
+ *   get:
  *     summary: Get available InviteCode list
  *     tags: [Admin]
  *     description: Get available InviteCode list

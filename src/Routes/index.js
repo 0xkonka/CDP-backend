@@ -63,9 +63,9 @@ app.use(bodyParser.json()) // to use body object in requests
  *         multiplier:
  *           type: number
  *           description: multiplier
- *         period:
+ *         endTimestamp:
  *           type: number
- *           descripton: multiplier duration time, unit is day. if 0 -> endless
+ *           descripton: multiplier duration til time, if 0 -> endless
  *       example:
  *         account: 0x8398f002122DcD0EcfDBB0725Af7637D4C8fF1b1
  *         xpPoint: 14000
@@ -195,9 +195,9 @@ app.post('/point/admin/distributeXP', verifyToken, distributeXP)
  *               multiplier:
  *                 type: number
  *                 description: Multiplier value to set.
- *               endTimestamp:
+ *               period:
  *                 type: number
- *                 description: Timestamp when the multiplier expires.
+ *                 descripton: multiplier duration time, unit is day. if 0 -> endless
  *     responses:
  *       200:
  *         description: Multiplier set successfully.

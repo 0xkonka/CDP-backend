@@ -33,7 +33,33 @@ export const distributeXP = async (req, res, next) => {
   }
 }
 
-export const setMultiplier = async (req, res, next) => {
+export const setMultiplierPermanent = async (req, res, next) => {
+  try {
+    const { account, multiplier } = req.body
+
+    if (!account) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid account' })
+    }
+
+    if (!multiplier && multiplier < 1) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid multiplier' })
+    }
+
+    const point = await Point.findOneAndUpdate(
+      { account },
+      { multiplier_permanent: multiplier },
+      { new: true, upsert: true }
+    )
+
+    return res.status(SUCCESS_CODE).send({ result: true, data: point })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+export const setMultiplierTemporary = async (req, res, next) => {
   try {
     const { account, multiplier, period = 1 } = req.body
 
@@ -44,17 +70,17 @@ export const setMultiplier = async (req, res, next) => {
     // if (endTimestamp > 0 && endTimestamp < Math.floor(Date.now() / 1000))
     //   return res.status(BAD_REQ_CODE).json({ result: false, message: 'timestamp should be bigger than current time' })
 
-    if (!multiplier && multiplier < 1) {
+    if (!multiplier) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid multiplier' })
     }
 
-    await Point.findOneAndUpdate(
+    const point = await Point.findOneAndUpdate(
       { account },
-      { multiplier, endTimestamp: Math.floor(Date.now() / 1000) + period * 24 * 3600 },
+      { multiplier_temporary: multiplier, endTimestamp: Math.floor(Date.now() / 1000) + period * 24 * 3600 },
       { new: true, upsert: true }
     )
 
-    return res.status(SUCCESS_CODE).send({ result: true })
+    return res.status(SUCCESS_CODE).send({ result: true, data: point })
   } catch (error) {
     console.log('error', error)
     next(error)

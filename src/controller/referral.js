@@ -40,7 +40,7 @@ export const getAvalableInviteCodes = async (req, res, next) => {
   try {
     const referral = await Referral.find({ redeemed: false }).select('inviteCode')
     let availbleInviteCodes = []
-    for ( let i = 0 ; i < referral.length ; i++){
+    for (let i = 0; i < referral.length; i++) {
       availbleInviteCodes.push(referral[i].inviteCode)
     }
     return res.status(SUCCESS_CODE).send({ result: true, data: availbleInviteCodes })
@@ -121,6 +121,8 @@ export const redeemInviteCode = async (req, res, next) => {
 
     for (let i = 0; i < +count; i++)
       await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account } })
+
+    await Point.findOneAndUpdate({ account }, { multiplier_permanent: 2 }, { new: true, upsert: true })
 
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {

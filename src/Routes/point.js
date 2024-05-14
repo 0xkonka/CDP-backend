@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { distributeXP, getUserPoint, setMultiplierPermanent, setMultiplierTemporary } from '../controller/point.js'
+import { distributeXP, getUserPoint, addMultiplierPermanent, addMultiplierTemporary } from '../controller/point.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
 const pointRoute = express.Router()
@@ -41,7 +41,7 @@ pointRoute.post('/point/admin/distributeXP', verifyToken, distributeXP)
 
 /**
  * @swagger
- * /api/point/admin/setMultiplierPermanent:
+ * /api/point/admin/addMultiplierPermanent:
  *   post:
  *     summary: Set the permanent multiplier for experience points
  *     tags: [Admin]
@@ -69,11 +69,11 @@ pointRoute.post('/point/admin/distributeXP', verifyToken, distributeXP)
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/admin/setMultiplierPermanent', verifyToken, setMultiplierPermanent)
+pointRoute.post('/point/admin/addMultiplierPermanent', verifyToken, addMultiplierPermanent)
 
 /**
  * @swagger
- * /api/point/admin/setMultiplierTemporary:
+ * /api/point/admin/addMultiplierTemporary:
  *   post:
  *     summary: Set the temporary multiplier for experience points
  *     tags: [Admin]
@@ -104,7 +104,7 @@ pointRoute.post('/point/admin/setMultiplierPermanent', verifyToken, setMultiplie
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/admin/setMultiplierTemporary', verifyToken, setMultiplierTemporary)
+pointRoute.post('/point/admin/addMultiplierTemporary', verifyToken, addMultiplierTemporary)
 
 /**
  * @swagger

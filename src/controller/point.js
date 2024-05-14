@@ -33,7 +33,7 @@ export const distributeXP = async (req, res, next) => {
   }
 }
 
-export const setMultiplierPermanent = async (req, res, next) => {
+export const addMultiplierPermanent = async (req, res, next) => {
   try {
     const { account, multiplier } = req.body
 
@@ -47,7 +47,7 @@ export const setMultiplierPermanent = async (req, res, next) => {
 
     const point = await Point.findOneAndUpdate(
       { account },
-      { multiplier_permanent: multiplier },
+      { $inc: { multiplier_permanent: multiplier } },
       { new: true, upsert: true }
     )
 
@@ -59,7 +59,7 @@ export const setMultiplierPermanent = async (req, res, next) => {
   }
 }
 
-export const setMultiplierTemporary = async (req, res, next) => {
+export const addMultiplierTemporary = async (req, res, next) => {
   try {
     const { account, multiplier, period = 1 } = req.body
 
@@ -76,7 +76,10 @@ export const setMultiplierTemporary = async (req, res, next) => {
 
     const point = await Point.findOneAndUpdate(
       { account },
-      { multiplier_temporary: multiplier, endTimestamp: Math.floor(Date.now() / 1000) + period * 24 * 3600 },
+      {
+        $inc: { multiplier_temporary: multiplier },
+        $set: { endTimestamp: Math.floor(Date.now() / 1000) + period * 24 * 3600 },
+      },
       { new: true, upsert: true }
     )
 

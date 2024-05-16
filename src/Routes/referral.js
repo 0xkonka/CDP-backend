@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes } from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
+import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
 
 const referralRoute = express.Router()
 
@@ -147,7 +148,7 @@ referralRoute.post('/referral/user/validate', validateInviteCode)
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/user/redeem', redeemInviteCode)
+referralRoute.post('/referral/user/redeem', rateLimitMiddleware, redeemInviteCode)
 
 /**
  * @swagger

@@ -21,6 +21,9 @@ export const NOT_ALLOWED_CODE = 405
 export const CONFLICT_CODE = 409
 export const CONFLICT_MSG = 'Conflict'
 
+export const TOO_MANY_CODE = 429
+export const TOO_MANY_MSG = 'Too many request'
+
 // 5** code
 export const SERVER_ERROR_CODE = 500
 export const SERVER_ERROR_MSG = 'Internal Server Error.'

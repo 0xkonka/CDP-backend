@@ -103,6 +103,34 @@ export const validateInviteCode = async (req, res, next) => {
   }
 }
 
+export const adminRedeemInviteCode = async (req, res, next) => {
+  try {
+    const { account, count } = req.body
+
+    if (!account || !count) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account or count' })
+    }
+
+    const isUserAlreadyRedeemed = await Referral.findOne({ redeemer: account })
+
+    if (isUserAlreadyRedeemed)
+      return res.status(CONFLICT_CODE).send({ result: false, messages: 'You already redeemed' })
+
+    await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { redeemer: account, redeemed: true } })
+
+    for (let i = 0; i < +count; i++)
+      await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account } })
+
+    await Point.findOneAndUpdate({ account }, { multiplier_permanent: 2 }, { new: true, upsert: true })
+
+    return res.status(SUCCESS_CODE).send({ result: true })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
 export const redeemInviteCode = async (req, res, next) => {
   try {
     const { account, inviteCode, count } = req.body
@@ -112,13 +140,13 @@ export const redeemInviteCode = async (req, res, next) => {
     }
 
     const isUserAlreadyRedeemed = await Referral.findOne({ redeemer: account })
-    const isInviteCodeAlreadyRedeemed = await Referral.findOne({ inviteCode , redeemed: true })
-    
-    if (isUserAlreadyRedeemed) return res.status(CONFLICT_CODE).send({ result: false, messages: 'You already redeemed' })
-    if (isInviteCodeAlreadyRedeemed) return res.status(CONFLICT_CODE).send({ result: false, messages: 'This inviteCode was already redeemed' })
-
     const referral = await Referral.findOne({ inviteCode })
-    if (!referral) return res.status(NOT_FOUND_CODE).send({ result: false, messages: NOT_FOUND_MSG })
+
+    if (isUserAlreadyRedeemed)
+      return res.status(CONFLICT_CODE).send({ result: false, messages: 'You already redeemed' })
+    if (!referral) return res.status(NOT_FOUND_CODE).send({ result: false, messages: 'InviteCode not found' })
+    if (referral.redeemed)
+      return res.status(CONFLICT_CODE).send({ result: false, messages: 'This inviteCode was already redeemed' })
 
     await Referral.updateOne({ inviteCode }, { $set: { redeemer: account, redeemed: true } })
 
@@ -142,7 +170,7 @@ export const getUserReferral = async (req, res, next) => {
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
     const userData = await Referral.findOne({ redeemed: true, redeemer: account })
-    
+
     if (userData) {
       let redeemerData = await Referral.find({ owner: account })
       for (let i = 0; i < redeemerData.length; i++) {

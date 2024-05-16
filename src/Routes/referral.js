@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes } from '../controller/referral.js'
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes, adminRedeemInviteCode } from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
 
@@ -81,6 +81,42 @@ referralRoute.post('/referral/admin/generate', verifyToken, generateInviteCode)
  *         description: Internal server error.
  */
 referralRoute.post('/referral/admin/distributeCodes', verifyToken, distributeInviteCode)
+
+/**
+ * @swagger
+ * /api/referral/admin/redeem:
+ *   post:
+ *     summary: Redeem an invite code
+ *     tags: [Admin]
+ *     description: Redeems an invite code to associate it with the user's account.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               account:
+ *                 type: string
+ *                 description: The user account that is redeeming the invite code.
+ *               count:
+ *                 type: number
+ *                 description: Number of invite codes to distribute.
+ *     responses:
+ *       200:
+ *         description: Invite code redeemed successfully.
+ *       400:
+ *         description: Missing account or invite code.
+ *       404:
+ *         description: Invite code not found.
+ *       409:
+ *         description: Invite code already redeemed or account has redeemed another code.
+ *       500:
+ *         description: Internal server error.
+ */
+referralRoute.post('/referral/admin/redeem', verifyToken, adminRedeemInviteCode)
 
 /**
  * @swagger

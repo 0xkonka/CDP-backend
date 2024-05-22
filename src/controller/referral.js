@@ -38,12 +38,15 @@ export const generateInviteCode = async (req, res, next) => {
 
 export const getAvalableInviteCodes = async (req, res, next) => {
   try {
-    const referral = await Referral.find({ redeemed: false }).select('inviteCode')
-    let availbleInviteCodes = []
+    const referral = await Referral.find({ redeemed: false })
+    let newCode = [] , hasOwner = []
     for (let i = 0; i < referral.length; i++) {
-      availbleInviteCodes.push(referral[i].inviteCode)
+      if(referral[i].owner === "admin")
+        newCode.push(referral[i].inviteCode)
+      else
+        hasOwner.push(referral[i].inviteCode)
     }
-    return res.status(SUCCESS_CODE).send({ result: true, data: availbleInviteCodes })
+    return res.status(SUCCESS_CODE).send({ newCode, hasOwner })
   } catch (error) {
     console.log('error', error)
     next(error)

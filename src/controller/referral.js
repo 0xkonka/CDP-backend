@@ -199,7 +199,9 @@ export const getUserReferrer = async (req, res, next) => {
 
     const referrer = await Referral.findOne({ redeemed: true, redeemer: account })
 
-    return res.status(SUCCESS_CODE).send({ result: true, redeemed: false, referrer })
+    if (referrer) return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, referrer })
+
+    return res.status(SUCCESS_CODE).send({ result: true, redeemed: false })
   } catch (error) {
     console.log('error', error)
     next(error)

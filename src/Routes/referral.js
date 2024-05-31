@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes, adminRedeemInviteCode } from '../controller/referral.js'
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes, adminRedeemInviteCode, getUserReferrer } from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
 
@@ -209,5 +209,29 @@ referralRoute.post('/referral/user/redeem', rateLimitMiddleware, redeemInviteCod
  *         description: Internal server error.
  */
 referralRoute.get('/referral/user/:account', getUserReferral)
+
+/**
+ * @swagger
+ * /api/referral/getReferrer/{account}:
+ *   get:
+ *     summary: Get referrer of user
+ *     tags: [User]
+ *     description: 
+ *     parameters:
+ *       - in: path
+ *         name: account
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User account identifier.
+ *     responses:
+ *       200:
+ *         description: Referrer information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+referralRoute.get('/referral/getReferrer/:account', getUserReferrer)
 
 export default referralRoute;

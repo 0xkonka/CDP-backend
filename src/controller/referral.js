@@ -39,12 +39,11 @@ export const generateInviteCode = async (req, res, next) => {
 export const getAvalableInviteCodes = async (req, res, next) => {
   try {
     const referral = await Referral.find({ redeemed: false })
-    let newCode = [] , hasOwner = []
+    let newCode = [],
+      hasOwner = []
     for (let i = 0; i < referral.length; i++) {
-      if(referral[i].owner === "admin")
-        newCode.push(referral[i].inviteCode)
-      else
-        hasOwner.push(referral[i].inviteCode)
+      if (referral[i].owner === 'admin') newCode.push(referral[i].inviteCode)
+      else hasOwner.push(referral[i].inviteCode)
     }
     return res.status(SUCCESS_CODE).send({ newCode, hasOwner })
   } catch (error) {
@@ -185,6 +184,22 @@ export const getUserReferral = async (req, res, next) => {
         .send({ result: true, redeemed: true, referralCode: userData.inviteCode, data: redeemerData })
     }
     return res.status(SUCCESS_CODE).send({ result: true, redeemed: false })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+export const getUserReferrer = async (req, res, next) => {
+  try {
+    const account = req.params.account
+
+    if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+
+    const referrer = await Referral.findOne({ redeemed: true, redeemer: account })
+
+    return res.status(SUCCESS_CODE).send({ result: true, redeemed: false, referrer })
   } catch (error) {
     console.log('error', error)
     next(error)

@@ -91,6 +91,19 @@ export const addMultiplierTemporary = async (req, res, next) => {
   }
 }
 
+export const getPointsList = async (req, res, next) => {
+  try {
+    
+    const pointsList = await Point.find({}).select('account xpPoint');
+
+    return res.status(SUCCESS_CODE).send({ result: true, data: pointsList })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
 export const getUserPoint = async (req, res, next) => {
   try {
     const account = req.params.account

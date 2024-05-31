@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { distributeXP, getUserPoint, addMultiplierPermanent, addMultiplierTemporary } from '../controller/point.js'
+import { distributeXP, getUserPoint, addMultiplierPermanent, addMultiplierTemporary, getPointsList } from '../controller/point.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
 const pointRoute = express.Router()
@@ -105,6 +105,23 @@ pointRoute.post('/point/admin/addMultiplierPermanent', verifyToken, addMultiplie
  *         description: Internal server error.
  */
 pointRoute.post('/point/admin/addMultiplierTemporary', verifyToken, addMultiplierTemporary)
+
+/**
+ * @swagger
+ * /api/point/list:
+ *   get:
+ *     summary: Get points for all user
+ *     tags: [User]
+ *     description: Retrieves all user points
+ *     responses:
+ *       200:
+ *         description: Points information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+pointRoute.get('/point/list', getPointsList)
 
 /**
  * @swagger

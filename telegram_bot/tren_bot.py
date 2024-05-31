@@ -7,15 +7,15 @@ from datetime import datetime
 
 # Replace with your bot token
 load_dotenv('.env')
-bot_token = os.getenv('BOT_TOKEN', '')
+bot_token = "6576986771:AAEMzm9dTfsv16hceblh39Dd6ZgO0QU2sIo"
 print(f"{bot_token}")
 bot = telebot.TeleBot(bot_token)
 
 # File to store user data
-user_data_file = 'telegram_bot/user_data.json'
+user_data_file = './user_data.json'
 
 # Admin user IDs
-admin_user_ids = [6169299399]  # Replace with your Telegram user ID
+admin_user_ids = [6169299399, 1728930954]  # Replace with your Telegram user ID
 
 # Admin state to track broadcast messages
 admin_broadcast_state = {}

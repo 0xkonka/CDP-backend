@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 8000
 
 const corsOptions = {
   origin: [
-    'https://tren.finance/',
-    'https://www.tren.finance/',
+    'https://tren.finance',
+    'https://www.tren.finance',
     'https://testnet.tren.finance',
     'https://www.testnet.tren.finance',
     'https://tren-staging.vercel.app',

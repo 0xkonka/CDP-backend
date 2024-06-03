@@ -13,7 +13,14 @@ dotenv.config()
 const PORT = process.env.PORT || 8000
 
 const corsOptions = {
-  origin: ['https://testnet.tren.finance', 'https://tren-staging.vercel.app', 'http://localhost:3000', 'http://localhost:8000'], // Allowed origins
+  origin: [
+    'https://tren.finance/',
+    'https://testnet.tren.finance',
+    'https://tren-staging.vercel.app',
+    'https://app.tren.finance',
+    'http://localhost:3000',
+    'http://localhost:8000',
+  ], // Allowed origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
 }

@@ -16,6 +16,7 @@ import { Point } from '../models/Point.js'
 export const generateInviteCode = async (req, res, next) => {
   try {
     const count = req.body.count || 1
+    let generatedCodes = []
 
     for (let i = 0; i < +count; i++) {
       let inviteCode
@@ -26,9 +27,10 @@ export const generateInviteCode = async (req, res, next) => {
         isExist = await Referral.findOne({ inviteCode })
       } while (isExist) // Repeat if the code already exists
       await Referral.create({ owner: 'admin', inviteCode })
+      generatedCodes.push(inviteCode);
     }
 
-    return res.status(SUCCESS_CODE).send({ result: true })
+    return res.status(SUCCESS_CODE).send({ result: true, data: generatedCodes })
   } catch (error) {
     console.log('error', error)
     next(error)

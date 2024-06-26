@@ -1,6 +1,14 @@
-import express from "express";
-import bodyParser from "body-parser";
-import { distributeXP, getUserPoint, addMultiplierPermanent, addMultiplierTemporary, getPointsList } from '../controller/point.js'
+import express from 'express'
+import bodyParser from 'body-parser'
+import {
+  distributeOffChainPoint,
+  getUserOffChainPoint,
+  addMultiplierPermanent,
+  addMultiplierTemporary,
+  getOnChainPointList,
+  getOffChainPointList,
+  getUserOnChainPoint,
+} from '../controller/point.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
 const pointRoute = express.Router()
@@ -9,7 +17,7 @@ pointRoute.use(bodyParser.json()) // to use body object in requests
 
 /**
  * @swagger
- * /api/point/admin/distributeXP:
+ * /api/point/admin/distributeOffChainPoint:
  *   post:
  *     summary: Distribute experience points
  *     tags: [Admin]
@@ -37,7 +45,7 @@ pointRoute.use(bodyParser.json()) // to use body object in requests
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/admin/distributeXP', verifyToken, distributeXP)
+pointRoute.post('/point/admin/distributeOffChainPoint', verifyToken, distributeOffChainPoint)
 
 /**
  * @swagger
@@ -108,11 +116,21 @@ pointRoute.post('/point/admin/addMultiplierTemporary', verifyToken, addMultiplie
 
 /**
  * @swagger
- * /api/point/list:
- *   get:
- *     summary: Get points for all user
+ * /api/point/onChain/list:
+ *   post:
+ *     summary: Get onchain points for all user
  *     tags: [User]
- *     description: Retrieves all user points
+ *     description: Retrieves all user onchain points
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               period:
+ *                 type: number
+ *                 description: period 
  *     responses:
  *       200:
  *         description: Points information retrieved successfully.
@@ -121,15 +139,62 @@ pointRoute.post('/point/admin/addMultiplierTemporary', verifyToken, addMultiplie
  *       500:
  *         description: Internal server error.
  */
-pointRoute.get('/point/list', getPointsList)
+pointRoute.post('/point/onChain/list', getOnChainPointList)
 
 /**
  * @swagger
- * /api/point/user/{account}:
+ * /api/point/offChain/list:
  *   get:
- *     summary: Get points for a user
+ *     summary: Get offchain points for all user
  *     tags: [User]
- *     description: Retrieves points and ranking information for a specific user.
+ *     description: Retrieves all user offchain points
+ *     responses:
+ *       200:
+ *         description: Points information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+pointRoute.get('/point/offChain/list', getOffChainPointList)
+
+/**
+ * @swagger
+ * /api/point/onChain/user:
+ *   post:
+ *     summary: Get onchain points for a user
+ *     tags: [User]
+ *     description: Retrieves onchain points and ranking information for a specific user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               account:
+ *                 type: string
+ *                 description: account
+ *               period:
+ *                 type: number
+ *                 description: period 
+ *     responses:
+ *       200:
+ *         description: Points information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+pointRoute.post('/point/onChain/user', getUserOnChainPoint)
+
+/**
+ * @swagger
+ * /api/point/offChain/user/{account}:
+ *   get:
+ *     summary: Get offchain points for a user
+ *     tags: [User]
+ *     description: Retrieves offchain points and ranking information for a specific user.
  *     parameters:
  *       - in: path
  *         name: account
@@ -145,6 +210,6 @@ pointRoute.get('/point/list', getPointsList)
  *       500:
  *         description: Internal server error.
  */
-pointRoute.get('/point/user/:account', getUserPoint)
+pointRoute.get('/point/offChain/user/:account', getUserOffChainPoint)
 
-export default pointRoute;
+export default pointRoute

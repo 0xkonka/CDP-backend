@@ -71,7 +71,6 @@ export const distributeInviteCode = async (req, res, next) => {
       if (docsToUpdate.length == count) {
         const idsToUpdate = docsToUpdate.map((doc) => doc._id)
         const updateResult = await Referral.updateMany({ _id: { $in: idsToUpdate } }, { $set: { owner: account } })
-        console.log(updateResult) // Log the result of the update operation
         return res.status(SUCCESS_CODE).send({ result: true })
       } else {
         res.status(BAD_REQ_CODE).send({ result: false, messages: 'Not enough inviteCodes' })

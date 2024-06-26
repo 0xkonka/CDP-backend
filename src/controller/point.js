@@ -10,8 +10,9 @@ import {
   SUCCESS_CODE,
 } from '../utils/response.js'
 import { Point } from '../models/Point.js'
+import fetch from 'node-fetch'
 
-export const distributeXP = async (req, res, next) => {
+export const distributeOffChainPoint = async (req, res, next) => {
   try {
     const { account, xpPoint = 0 } = req.body
 
@@ -91,10 +92,66 @@ export const addMultiplierTemporary = async (req, res, next) => {
   }
 }
 
-export const getPointsList = async (req, res, next) => {
+export const getOnChainPointList = async (req, res, next) => {
   try {
+    const { period = 7 } = req.body // default period is 7 day
+
+    const timestamp = Math.floor(Date.now() / 1000) - period * 24 * 60 * 60
+
+    console.log('timestamp', timestamp)
+
+    const query = `
+  {
+    trenXPPoints(
+      where: {
+        blockTimestamp_gte: "${timestamp}"
+      },
+      orderBy: blockTimestamp,
+      orderDirection: desc
+    ) {
+      id
+      account
+      amount
+      blockTimestamp
+    }
+  }`
+
+    const url = process.env.SUBGRAPH_URL
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    })
+    const data = await response.json()
+    const trenXPPoints = data.data.trenXPPoints;
+
+    const result = trenXPPoints.reduce((acc, point) => {
+    const account = point.account;
+    const amount = BigInt(point.amount);
+
+    if (acc[account]) {
+      acc[account] += Number(amount / BigInt(10 ** 18));
+    } else {
+      acc[account] = Number(amount / BigInt(10 ** 18));
+    }
+
+    return acc;
+  }, {});
     
-    const pointsList = await Point.find({}).select('account xpPoint');
+    return res.status(SUCCESS_CODE).send({ result: true, data: result })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+export const getOffChainPointList = async (req, res, next) => {
+  try {
+    const pointsList = await Point.find({}).select('account xpPoint')
 
     return res.status(SUCCESS_CODE).send({ result: true, data: pointsList })
   } catch (error) {
@@ -104,11 +161,59 @@ export const getPointsList = async (req, res, next) => {
   }
 }
 
-export const getUserPoint = async (req, res, next) => {
+export const getUserOnChainPoint = async (req, res, next) => {
+  try {
+    const { account, period = 7 } = req.body // default period is 7 day
+
+    if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+
+    const timestamp = Math.floor(Date.now() / 1000) - period * 24 * 60 * 60
+
+    console.log('timestamp', timestamp)
+
+    const query = `
+  {
+    trenXPPoints(
+      where: {
+        blockTimestamp_gte: "${timestamp}",
+        account: "${account}"
+      },
+      orderBy: blockTimestamp,
+      orderDirection: desc
+    ) {
+      id
+      account
+      amount
+      blockTimestamp
+    }
+  }`
+
+    const url = process.env.SUBGRAPH_URL
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    })
+    const data = await response.json()
+    const trenXPPoints = data.data.trenXPPoints;
+
+    const totalAmount = trenXPPoints.reduce((acc, point) => acc + BigInt(point.amount), BigInt(0))
+    const result = Number(totalAmount / BigInt(10 ** 18))
+    
+    return res.status(SUCCESS_CODE).send({ result: true, data: result })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+export const getUserOffChainPoint = async (req, res, next) => {
   try {
     const account = req.params.account
-
-    console.log('account', account)
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 

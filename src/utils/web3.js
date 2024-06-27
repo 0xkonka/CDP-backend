@@ -1,21 +1,16 @@
 import { ethers, providers } from 'ethers'
-import TreningABI from '../abi/Trening.json'
-import { TRENING } from '../config'
+import TreningABI from '../abi/Trening.json' assert { type: 'json' };
+import { config } from '../config.js'
+import dotenv from 'dotenv';
 
-const { DEPLOY_KEY } = process.env
+dotenv.config();
 
-// export enum Network {
-//   mainnet,
-//   sepolia
-// }
+const { NETWORK, DEPLOY_KEY } = process.env
 
-export const timeLock = (network) => {
-  if (!DEPLOY_KEY) {
-    throw new Error('Please define the DEPLOY_KEY environment variable');
-  }
-  const provider = new providers.JsonRpcProvider(TRENING[network])
+const contracts = config['contracts'][NETWORK]
+const rpcUrl = config['rpcUrl'][NETWORK]
+const provider = new providers.JsonRpcProvider(rpcUrl)
 
-  const signers = new ethers.Wallet(DEPLOY_KEY).connect(provider)
+const pointKeeper = new ethers.Wallet(DEPLOY_KEY).connect(provider)
 
-  return new ethers.Contract(TRENING[network], TreningABI, signers)
-}
+export const treningPoints = new ethers.Contract(contracts.Trening, TreningABI, pointKeeper)

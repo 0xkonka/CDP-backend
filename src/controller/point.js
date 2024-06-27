@@ -11,6 +11,7 @@ import {
 } from '../utils/response.js'
 import { Point } from '../models/Point.js'
 import fetch from 'node-fetch'
+import { updateTreningPoints } from '../contractCall/treningPoint.js'
 
 export const distributeOffChainPoint = async (req, res, next) => {
   try {
@@ -98,8 +99,6 @@ export const getOnChainPointList = async (req, res, next) => {
 
     const timestamp = Math.floor(Date.now() / 1000) - period * 24 * 60 * 60
 
-    console.log('timestamp', timestamp)
-
     const query = `
   {
     trenXPPoints(
@@ -126,21 +125,21 @@ export const getOnChainPointList = async (req, res, next) => {
       body: JSON.stringify({ query }),
     })
     const data = await response.json()
-    const trenXPPoints = data.data.trenXPPoints;
+    const trenXPPoints = data.data.trenXPPoints
 
     const result = trenXPPoints.reduce((acc, point) => {
-    const account = point.account;
-    const amount = BigInt(point.amount);
+      const account = point.account
+      const amount = BigInt(point.amount)
 
-    if (acc[account]) {
-      acc[account] += Number(amount / BigInt(10 ** 18));
-    } else {
-      acc[account] = Number(amount / BigInt(10 ** 18));
-    }
+      if (acc[account]) {
+        acc[account] += Number(amount / BigInt(10 ** 18))
+      } else {
+        acc[account] = Number(amount / BigInt(10 ** 18))
+      }
 
-    return acc;
-  }, {});
-    
+      return acc
+    }, {})
+
     return res.status(SUCCESS_CODE).send({ result: true, data: result })
   } catch (error) {
     console.log('error', error)
@@ -152,6 +151,8 @@ export const getOnChainPointList = async (req, res, next) => {
 export const getOffChainPointList = async (req, res, next) => {
   try {
     const pointsList = await Point.find({}).select('account xpPoint')
+
+    // await updateTreningPoints()
 
     return res.status(SUCCESS_CODE).send({ result: true, data: pointsList })
   } catch (error) {
@@ -168,8 +169,6 @@ export const getUserOnChainPoint = async (req, res, next) => {
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
     const timestamp = Math.floor(Date.now() / 1000) - period * 24 * 60 * 60
-
-    console.log('timestamp', timestamp)
 
     const query = `
   {
@@ -198,11 +197,11 @@ export const getUserOnChainPoint = async (req, res, next) => {
       body: JSON.stringify({ query }),
     })
     const data = await response.json()
-    const trenXPPoints = data.data.trenXPPoints;
+    const trenXPPoints = data.data.trenXPPoints
 
     const totalAmount = trenXPPoints.reduce((acc, point) => acc + BigInt(point.amount), BigInt(0))
     const result = Number(totalAmount / BigInt(10 ** 18))
-    
+
     return res.status(SUCCESS_CODE).send({ result: true, data: result })
   } catch (error) {
     console.log('error', error)

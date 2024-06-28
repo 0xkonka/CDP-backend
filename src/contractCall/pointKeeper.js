@@ -77,9 +77,9 @@ const fetchOnChainPoints = async (timestamp) => {
   data.data.trenXPPoints.forEach((point) => {
     const { account, amount } = point
     if (!onChainPoints[account]) {
-      onChainPoints[account] = BigInt(0) // Initialize with BigInt for large numbers
+      onChainPoints[account.toLowerCase()] = BigInt(0) // Initialize with BigInt for large numbers
     }
-    onChainPoints[account] += (BigInt(amount) * BigInt(10)) / BigInt(4)
+    onChainPoints[account.toLowerCase()] += (BigInt(amount) * BigInt(10)) / BigInt(4)
   })
 
   return onChainPoints
@@ -104,10 +104,10 @@ const combinePoints = (onChainPoints, offChainPoints) => {
 
   offChainPoints.forEach((point) => {
     const { account, xpPoint } = point
-    if (combinedPoints[account]) {
-      combinedPoints[account] = parseEther(xpPoint).add(combinedPoints[account])
+    if (combinedPoints[account.toLowerCase()]) {
+      combinedPoints[account.toLowerCase()] = parseEther(xpPoint.toString()).add(combinedPoints[account])
     } else {
-      combinedPoints[account] = parseEther(xpPoint)
+      combinedPoints[account.toLowerCase()] = parseEther(xpPoint.toString())
     }
   })
 
@@ -118,29 +118,38 @@ const combinePoints = (onChainPoints, offChainPoints) => {
  * Distribute 15% of points to referrers and update user points.
  */
 const distributeReferralPoints = async (combinedPointsArray, referrals) => {
-  const updatedPointsArray = []
+  const updatedPointsMap = new Map();
 
   combinedPointsArray.forEach((entry) => {
-    const referral = referrals.find((ref) => ref.redeemer === entry.user)
-    if (referral) {
-      const referrerPoints = entry.points * BigInt(15) / BigInt(100)
-      const updatedPoints = entry.points - referrerPoints
-
-      updatedPointsArray.push({ user: entry.user, points: updatedPoints })
-
-      const referrerEntry = updatedPointsArray.find((e) => e.user === referral.owner)
-      if (referrerEntry) {
-        referrerEntry.points += referrerPoints
-      } else {
-        updatedPointsArray.push({ user: referral.owner, points: referrerPoints })
-      }
+    const user = entry.user.toLowerCase();
+    const points = BigInt(entry.points);
+    if (updatedPointsMap.has(user)) {
+      updatedPointsMap.set(user, updatedPointsMap.get(user) + points);
     } else {
-      updatedPointsArray.push(entry)
+      updatedPointsMap.set(user, points);
     }
-  })
 
-  return updatedPointsArray
-}
+    const referral = referrals.find((ref) => ref.redeemer.toLowerCase() === user);
+    if (referral) {
+      const referrerPoints = (points * BigInt(15)) / BigInt(100);
+      const updatedPoints = points - referrerPoints;
+
+      updatedPointsMap.set(user, updatedPoints);
+
+      const referrer = referral.owner.toLowerCase();
+      if (referrer !== 'admin') {
+        if (updatedPointsMap.has(referrer)) {
+          updatedPointsMap.set(referrer, updatedPointsMap.get(referrer) + referrerPoints);
+        } else {
+          updatedPointsMap.set(referrer, referrerPoints);
+        }
+      }
+    }
+  });
+
+  const updatedPointsArray = Array.from(updatedPointsMap, ([user, points]) => ({ user, points }));
+  return updatedPointsArray;
+};
 
 /**
  * Reset xpPoint to 0 for updated accounts in the Point DB.
@@ -160,7 +169,7 @@ const calculateReferralPoints = (updatedPointsArray, referrals) => {
   updatedPointsArray.forEach((entry) => {
     const referral = referrals.find((ref) => ref.redeemer === entry.user)
     if (referral) {
-      const referrerPoints = entry.points * BigInt(15) / BigInt(100)
+      const referrerPoints = (entry.points * BigInt(15)) / BigInt(100)
       if (referralPointsMap[referral.owner]) {
         referralPointsMap[referral.owner] += +formatEther(referrerPoints)
       } else {

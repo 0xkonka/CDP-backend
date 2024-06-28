@@ -11,7 +11,7 @@ import {
 } from '../utils/response.js'
 import { Point } from '../models/Point.js'
 import fetch from 'node-fetch'
-import { updateTreningPoints } from '../contractCall/treningPoint.js'
+import { updateTreningPoints } from '../contractCall/pointKeeper.js'
 
 export const distributeOffChainPoint = async (req, res, next) => {
   try {
@@ -150,7 +150,7 @@ export const getOnChainPointList = async (req, res, next) => {
 
 export const getOffChainPointList = async (req, res, next) => {
   try {
-    const pointsList = await Point.find({}).select('account xpPoint')
+    const pointsList = await Point.find({}).select('account xpPoint referralPoint')
 
     // await updateTreningPoints()
 

@@ -1,4 +1,4 @@
-// models/SomeModel.ts
+// models/Point.ts
 import mongoose, { Schema } from 'mongoose'
 
 const PointSchema = new Schema({
@@ -8,6 +8,7 @@ const PointSchema = new Schema({
     unique: true,
   },
   xpPoint: { type: Number, default: 0 },
+  referralPoint: { type: Number, default: 0 },
   multiplier_permanent: { type: Number, default: 1 },
   multiplier_temporary: { type: Number, default: 0 },
   endTimestamp: { type: Number },

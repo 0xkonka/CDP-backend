@@ -1,4 +1,4 @@
-// models/SomeModel.ts
+// models/Refferal.ts
 import mongoose, { Schema } from 'mongoose'
 
 const ReferralSchema = new Schema({

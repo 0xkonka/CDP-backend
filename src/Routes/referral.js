@@ -13,7 +13,7 @@ referralRoute.use(bodyParser.json()) // to use body object in requests
  * /api/referral/admin/availableInviteCodes:
  *   post:
  *     summary: Get available InviteCode list
- *     tags: [Admin]
+ *     tags: [Referral-Admin]
  *     description: Get available InviteCode list
  *     security:
  *       - bearerAuth: []
@@ -23,14 +23,14 @@ referralRoute.use(bodyParser.json()) // to use body object in requests
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/admin/availableInviteCodes', verifyToken, getAvalableInviteCodes)
+referralRoute.post('/admin/availableInviteCodes', verifyToken('admin'), getAvalableInviteCodes)
 
 /**
  * @swagger
  * /api/referral/admin/generate:
  *   post:
  *     summary: Generate an invite code
- *     tags: [Admin]
+ *     tags: [Referral-Admin]
  *     description: Generate a new invite code for use in referral promotions.
  *     security:
  *       - bearerAuth: []
@@ -50,14 +50,14 @@ referralRoute.post('/referral/admin/availableInviteCodes', verifyToken, getAvala
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/admin/generate', verifyToken, generateInviteCode)
+referralRoute.post('/admin/generate', verifyToken('admin'), generateInviteCode)
 
 /**
  * @swagger
  * /api/referral/admin/distributeCodes:
  *   post:
  *     summary: Distribute invite Code to user
- *     tags: [Admin]
+ *     tags: [Referral-Admin]
  *     description: Distribute invite Codes to user
  *     security:
  *       - bearerAuth: []
@@ -80,14 +80,14 @@ referralRoute.post('/referral/admin/generate', verifyToken, generateInviteCode)
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/admin/distributeCodes', verifyToken, distributeInviteCode)
+referralRoute.post('/admin/distributeCodes', verifyToken('admin'), distributeInviteCode)
 
 /**
  * @swagger
  * /api/referral/admin/redeem:
  *   post:
  *     summary: Redeem an invite code
- *     tags: [Admin]
+ *     tags: [Referral-Admin]
  *     description: Redeems an invite code to associate it with the user's account.
  *     security:
  *       - bearerAuth: []
@@ -116,14 +116,14 @@ referralRoute.post('/referral/admin/distributeCodes', verifyToken, distributeInv
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/admin/redeem', verifyToken, adminRedeemInviteCode)
+referralRoute.post('/admin/redeem', verifyToken('admin'), adminRedeemInviteCode)
 
 /**
  * @swagger
  * /api/referral/user/validate:
  *   post:
  *     summary: Validate an invite code
- *     tags: [User]
+ *     tags: [Referral-User]
  *     description: Validates if an invite code is correct and not yet redeemed.
  *     requestBody:
  *       required: true
@@ -147,14 +147,14 @@ referralRoute.post('/referral/admin/redeem', verifyToken, adminRedeemInviteCode)
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/user/validate', validateInviteCode)
+referralRoute.post('/user/validate', validateInviteCode)
 
 /**
  * @swagger
  * /api/referral/user/redeem:
  *   post:
  *     summary: Redeem an invite code
- *     tags: [User]
+ *     tags: [Referral-User]
  *     description: Redeems an invite code to associate it with the user's account.
  *     requestBody:
  *       required: true
@@ -184,14 +184,14 @@ referralRoute.post('/referral/user/validate', validateInviteCode)
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/referral/user/redeem', rateLimitMiddleware, redeemInviteCode)
+referralRoute.post('/user/redeem', rateLimitMiddleware, redeemInviteCode)
 
 /**
  * @swagger
  * /api/referral/user/{account}:
  *   get:
  *     summary: Get referral information for a user
- *     tags: [User]
+ *     tags: [Referral-User]
  *     description: Retrieves referral status and details for a specific user.
  *     parameters:
  *       - in: path
@@ -208,14 +208,14 @@ referralRoute.post('/referral/user/redeem', rateLimitMiddleware, redeemInviteCod
  *       500:
  *         description: Internal server error.
  */
-referralRoute.get('/referral/user/:account', getUserReferral)
+referralRoute.get('/user/:account', getUserReferral)
 
 /**
  * @swagger
  * /api/referral/getReferrer/{account}:
  *   get:
  *     summary: Get referrer of user
- *     tags: [User]
+ *     tags: [Referral-User]
  *     description: 
  *     parameters:
  *       - in: path
@@ -232,6 +232,6 @@ referralRoute.get('/referral/user/:account', getUserReferral)
  *       500:
  *         description: Internal server error.
  */
-referralRoute.get('/referral/getReferrer/:account', getUserReferrer)
+referralRoute.get('/getReferrer/:account', getUserReferrer)
 
 export default referralRoute;

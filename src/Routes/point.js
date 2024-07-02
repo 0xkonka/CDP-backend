@@ -20,7 +20,7 @@ pointRoute.use(bodyParser.json()) // to use body object in requests
  * /api/point/admin/distributeOffChainPoint:
  *   post:
  *     summary: Distribute experience points
- *     tags: [Admin]
+ *     tags: [Point-Admin]
  *     description: Distributes XP to a specific user account.
  *     security:
  *       - bearerAuth: []
@@ -45,14 +45,14 @@ pointRoute.use(bodyParser.json()) // to use body object in requests
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/admin/distributeOffChainPoint', verifyToken, distributeOffChainPoint)
+pointRoute.post('/admin/distributeOffChainPoint', verifyToken('admin'), distributeOffChainPoint)
 
 /**
  * @swagger
  * /api/point/admin/addMultiplierPermanent:
  *   post:
  *     summary: Set the permanent multiplier for experience points
- *     tags: [Admin]
+ *     tags: [Point-Admin]
  *     description: Sets a multiplier for experience points for a specific account, this multiplier is endless
  *     security:
  *       - bearerAuth: []
@@ -77,14 +77,14 @@ pointRoute.post('/point/admin/distributeOffChainPoint', verifyToken, distributeO
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/admin/addMultiplierPermanent', verifyToken, addMultiplierPermanent)
+pointRoute.post('/admin/addMultiplierPermanent', verifyToken('admin'), addMultiplierPermanent)
 
 /**
  * @swagger
  * /api/point/admin/addMultiplierTemporary:
  *   post:
  *     summary: Set the temporary multiplier for experience points
- *     tags: [Admin]
+ *     tags: [Point-Admin]
  *     description: Sets a multiplier for experience points for a specific account, applicable until a specified end time. ** period unit is DAY **
  *     security:
  *       - bearerAuth: []
@@ -112,14 +112,14 @@ pointRoute.post('/point/admin/addMultiplierPermanent', verifyToken, addMultiplie
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/admin/addMultiplierTemporary', verifyToken, addMultiplierTemporary)
+pointRoute.post('/admin/addMultiplierTemporary', verifyToken('admin'), addMultiplierTemporary)
 
 /**
  * @swagger
  * /api/point/onChain/list:
  *   post:
  *     summary: Get onchain points for all user
- *     tags: [User]
+ *     tags: [Point-User]
  *     description: Retrieves all user onchain points
  *     requestBody:
  *       required: true
@@ -139,14 +139,14 @@ pointRoute.post('/point/admin/addMultiplierTemporary', verifyToken, addMultiplie
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/onChain/list', getOnChainPointList)
+pointRoute.post('/onChain/list', getOnChainPointList)
 
 /**
  * @swagger
  * /api/point/offChain/list:
  *   get:
  *     summary: Get offchain points for all user
- *     tags: [User]
+ *     tags: [Point-User]
  *     description: Retrieves all user offchain points
  *     responses:
  *       200:
@@ -156,14 +156,14 @@ pointRoute.post('/point/onChain/list', getOnChainPointList)
  *       500:
  *         description: Internal server error.
  */
-pointRoute.get('/point/offChain/list', getOffChainPointList)
+pointRoute.get('/offChain/list', getOffChainPointList)
 
 /**
  * @swagger
  * /api/point/onChain/user:
  *   post:
  *     summary: Get onchain points for a user
- *     tags: [User]
+ *     tags: [Point-User]
  *     description: Retrieves onchain points and ranking information for a specific user.
  *     requestBody:
  *       required: true
@@ -186,14 +186,14 @@ pointRoute.get('/point/offChain/list', getOffChainPointList)
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/point/onChain/user', getUserOnChainPoint)
+pointRoute.post('/onChain/user', getUserOnChainPoint)
 
 /**
  * @swagger
  * /api/point/offChain/user/{account}:
  *   get:
  *     summary: Get offchain points for a user
- *     tags: [User]
+ *     tags: [Point-User]
  *     description: Retrieves offchain points and ranking information for a specific user.
  *     parameters:
  *       - in: path
@@ -210,6 +210,6 @@ pointRoute.post('/point/onChain/user', getUserOnChainPoint)
  *       500:
  *         description: Internal server error.
  */
-pointRoute.get('/point/offChain/user/:account', getUserOffChainPoint)
+pointRoute.get('/offChain/user/:account', getUserOffChainPoint)
 
 export default pointRoute

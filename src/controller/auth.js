@@ -14,13 +14,19 @@ import jwt from 'jsonwebtoken'
 
 export const generateToken = async (req, res, next) => {
   try {
-    const { secret } = req.body
+    const { secret, role } = req.body
     
-    if (!secret) {
-      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing secret' })
+    if (!secret || !role) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing secret or role' })
     }
 
-    const token = jwt.sign({ secret }, 'your-secret-key')
+    // Validate role
+    const validRoles = ['admin', 'telegram']
+    if (!validRoles.includes(role)) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid role' })
+    }
+
+    const token = jwt.sign({ secret, role }, 'your-secret-key')
 
     return res.status(SUCCESS_CODE).send({ token })
   } catch (error) {

@@ -6,7 +6,6 @@ import {
   addWalletToTelegram,
   updateSocialTaskStatus,
   createUserId,
-  addReferrer,
 } from '../controller/telegram.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
@@ -33,6 +32,9 @@ telegramRoute.use(bodyParser.json())
  *               userId:
  *                 type: string
  *                 description: Unique userId for the new user
+ *               referrerId:
+ *                 type: string
+ *                 description: referrer ID 
  *     responses:
  *       200:
  *         description: User created successfully.
@@ -156,9 +158,6 @@ telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
  *               social:
  *                 type: string
  *                 description: Social task to update (telegram, discord, twitter)
- *               status:
- *                 type: boolean
- *                 description: Status of the social task
  *     responses:
  *       200:
  *         description: Social task status updated successfully.
@@ -171,38 +170,5 @@ telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
  */
 telegramRoute.post('/social/update', verifyToken('telegram'), updateSocialTaskStatus)
 
-/**
- * @swagger
- * /api/telegram/referrer/add:
- *   post:
- *     summary: Add Referrer to Telegram User
- *     tags: [Telegram]
- *     description: Add a referrer to a Telegram user.
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: string
- *                 description: Telegram user ID
- *               referrer:
- *                 type: string
- *                 description: Referrer ID to be added
- *     responses:
- *       200:
- *         description: Referrer added successfully.
- *       400:
- *         description: Bad request, missing userId or referrer.
- *       404:
- *         description: User not found.
- *       500:
- *         description: Internal server error.
- */
-telegramRoute.post('/referrer/add', verifyToken('telegram'), addReferrer)
 
 export default telegramRoute

@@ -13,7 +13,7 @@ import { Telegram } from '../models/Telegram.js'
 
 export const createUserId = async (req, res, next) => {
   try {
-    const { userId } = req.body
+    const { userId, referrerId } = req.body
 
     if (!userId) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId' })
@@ -25,8 +25,40 @@ export const createUserId = async (req, res, next) => {
       return res.status(CONFLICT_CODE).json({ result: false, message: 'UserId already exists' })
     }
 
-    const newUser = new Telegram({ userId })
-    await newUser.save()
+    let newUser
+
+    if (referrerId && referrerId !== '') {
+      const referrer = await Telegram.findOne({ userId: referrerId })
+
+      if (!referrer) {
+        return res.status(NOT_FOUND_CODE).json({ result: false, message: 'Referrer not found' })
+      }
+
+      // Check the total number of referrals
+      const referrerCount = referrer.referrers.length
+
+      // Add bonus points based on referral count
+      let bonusPoints = 2000
+      if (referrerCount + 1 === 5) {
+        bonusPoints += 2500
+      } else if (referrerCount + 1 === 10) {
+        bonusPoints += 5000
+      } else if (referrerCount + 1 === 25) {
+        bonusPoints += 125000
+      }
+
+      await Telegram.findOneAndUpdate(
+        { userId: referrerId },
+        { $inc: { telegramPoint: bonusPoints }, $addToSet: { referrers: userId } },
+        { new: true }
+      )
+
+      newUser = new Telegram({ userId, telegramPoint: 2000 })
+      await newUser.save()
+    } else {
+      newUser = new Telegram({ userId })
+      await newUser.save()
+    }
 
     return res.status(SUCCESS_CODE).json({ result: true, data: newUser })
   } catch (error) {
@@ -36,10 +68,10 @@ export const createUserId = async (req, res, next) => {
   }
 }
 
-// Helper function to calculate if 24 hours have passed
-const has24HoursPassed = (timestamp) => {
+// Helper function to calculate if 8 hours have passed
+const has8HoursPassed = (timestamp) => {
   const currentTime = Math.floor(Date.now() / 1000)
-  return currentTime - timestamp >= 86400 // 86400 seconds in 24 hours
+  return currentTime - timestamp >= 8 * 60 * 60
 }
 
 export const startFarmingPoint = async (req, res, next) => {
@@ -52,28 +84,28 @@ export const startFarmingPoint = async (req, res, next) => {
 
     const user = await Telegram.findOne({ userId })
 
-    if (user && has24HoursPassed(user.farmStartingTime)) {
-      const newFarmingPoint = user.farmingPoint ? user.farmingPoint + 100 : 1 // Assuming 100 points for 24 hours farming
+    if (user.farmStartingTime === 0) {
+      // User has never farmed yet
+      await Telegram.findOneAndUpdate({ userId }, { farmStartingTime: Math.floor(Date.now() / 1000) }, { new: true })
 
-      await Telegram.findOneAndUpdate(
+      return res.status(SUCCESS_CODE).json({ result: true, message: 'Farming started for the first time' })
+    }
+
+    if (user && has8HoursPassed(user.farmStartingTime)) {
+      // const newTelegramPoint = user.telegramPoint + 8 * 25
+
+      const updatedUser = await Telegram.findOneAndUpdate(
         { userId },
-        { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newFarmingPoint },
+        { $inc: { telegramPoint: 8 * 25 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
+        // { farmStartingTime: Math.floor(Date.now() / 1000), telegramPoint: newTelegramPoint },
         { new: true }
       )
 
-      return res.status(SUCCESS_CODE).json({ result: true, data: newFarmingPoint })
-    } else if (!user) {
-      await Telegram.create({
-        userId,
-        farmStartingTime: Math.floor(Date.now() / 1000),
-        farmingPoint: 0, // Initial points for new user
-      })
-
-      return res.status(SUCCESS_CODE).json({ result: true, data: user.farmingPoint })
+      return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.telegramPoint })
     } else {
       return res
         .status(CONFLICT_CODE)
-        .json({ result: false, message: '24 hours have not passed since last farming start' })
+        .json({ result: false, message: '8 hours have not passed since last farming start' })
     }
   } catch (error) {
     console.log('error', error)
@@ -124,38 +156,20 @@ export const addWalletToTelegram = async (req, res, next) => {
 
 export const updateSocialTaskStatus = async (req, res, next) => {
   try {
-    const { userId, social, status } = req.body
+    const { userId, social } = req.body
 
-    if (!userId || !social || typeof status === 'undefined') {
+    if (!userId || !social) {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId, social, or status' })
     }
 
     const update = {}
-    update[`socialTaskStatus.${social}`] = status
+    update[`socialTaskStatus.${social}`] = true
 
-    const user = await Telegram.findOneAndUpdate({ userId }, { $set: update }, { new: true })
-
-    if (!user) {
-      return res.status(NOT_FOUND_CODE).json({ result: false, message: 'User not found' })
-    }
-
-    return res.status(SUCCESS_CODE).json({ result: true, data: user })
-  } catch (error) {
-    console.log('error', error)
-    next(error)
-    return res.status(SERVER_ERROR_CODE).json({ result: false, message: SERVER_ERROR_MSG })
-  }
-}
-
-export const addReferrer = async (req, res, next) => {
-  try {
-    const { userId, referrer } = req.body
-
-    if (!userId || !referrer) {
-      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId or referrer' })
-    }
-
-    const user = await Telegram.findOneAndUpdate({ userId }, { $addToSet: { referrers: referrer } }, { new: true })
+    const user = await Telegram.findOneAndUpdate(
+      { userId },
+      { $inc: { telegramPoint: 200 }, $set: update },
+      { new: true }
+    )
 
     if (!user) {
       return res.status(NOT_FOUND_CODE).json({ result: false, message: 'User not found' })

@@ -14,7 +14,11 @@ const TelegramSchema = new Schema({
     type: Number,
     default: 0,
   },
-  telegramPoint: {
+  farmingPoint: {
+    type: Number,
+    default: 0,
+  },
+  referralPoint: {
     type: Number,
     default: 0,
   },

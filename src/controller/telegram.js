@@ -49,11 +49,11 @@ export const createUserId = async (req, res, next) => {
 
       await Telegram.findOneAndUpdate(
         { userId: referrerId },
-        { $inc: { telegramPoint: bonusPoints }, $addToSet: { referrers: userId } },
+        { $inc: { referralPoint: bonusPoints }, $addToSet: { referrers: userId } },
         { new: true }
       )
 
-      newUser = new Telegram({ userId, telegramPoint: 2000 })
+      newUser = new Telegram({ userId, farmingPoint: 2000 })
       await newUser.save()
     } else {
       newUser = new Telegram({ userId })
@@ -92,16 +92,15 @@ export const startFarmingPoint = async (req, res, next) => {
     }
 
     if (user && has8HoursPassed(user.farmStartingTime)) {
-      // const newTelegramPoint = user.telegramPoint + 8 * 25
-
+      
       const updatedUser = await Telegram.findOneAndUpdate(
         { userId },
-        { $inc: { telegramPoint: 8 * 25 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
-        // { farmStartingTime: Math.floor(Date.now() / 1000), telegramPoint: newTelegramPoint },
+        { $inc: { farmingPoint: 8 * 25 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
+        // { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newTelegramPoint },
         { new: true }
       )
 
-      return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.telegramPoint })
+      return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.farmingPoint })
     } else {
       return res
         .status(CONFLICT_CODE)
@@ -167,7 +166,7 @@ export const updateSocialTaskStatus = async (req, res, next) => {
 
     const user = await Telegram.findOneAndUpdate(
       { userId },
-      { $inc: { telegramPoint: 200 }, $set: update },
+      { $inc: { farmingPoint: 200 }, $set: update },
       { new: true }
     )
 

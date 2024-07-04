@@ -129,6 +129,14 @@ app.use('/telegram', telegramRoute)
  *           type: number
  *           description: The starting time of farming
  *           default: 0
+ *         farmingPoint:
+ *           type: number
+ *           description: farming XP point
+ *           default: 0
+ *         referralPoint:
+ *           type: number
+ *           description: referral XP point
+ *           default: 0
  *         socialTaskStatus:
  *           type: object
  *           properties:

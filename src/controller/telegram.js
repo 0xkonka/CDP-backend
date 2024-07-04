@@ -49,7 +49,10 @@ export const createUserId = async (req, res, next) => {
 
       await Telegram.findOneAndUpdate(
         { userId: referrerId },
-        { $inc: { referralPoint: bonusPoints }, $addToSet: { referrers: userId } },
+        {
+          $inc: { referralPoint: bonusPoints },
+          $addToSet: { referrers: { referrerId: userId, timestamp: Math.floor(Date.now() / 1000) } },
+        },
         { new: true }
       )
 
@@ -92,7 +95,6 @@ export const startFarmingPoint = async (req, res, next) => {
     }
 
     if (user && has8HoursPassed(user.farmStartingTime)) {
-      
       const updatedUser = await Telegram.findOneAndUpdate(
         { userId },
         { $inc: { farmingPoint: 8 * 25 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },

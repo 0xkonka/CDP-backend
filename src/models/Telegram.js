@@ -1,6 +1,17 @@
 // models/Telegram.js
 import mongoose, { Schema } from 'mongoose'
 
+const ReferrerSchema = new Schema({
+  referrerId: {
+    type: String,
+    required: true,
+  },
+  timestamp: {
+    type: Number,
+    default: 0,
+  },
+})
+
 const TelegramSchema = new Schema({
   userId: {
     type: String,
@@ -37,7 +48,7 @@ const TelegramSchema = new Schema({
     },
   },
   referrers: {
-    type: [String],
+    type: [ReferrerSchema],
     default: [],
   },
 })

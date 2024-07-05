@@ -22,7 +22,7 @@ export const createUserId = async (req, res, next) => {
     const existingUser = await Telegram.findOne({ userId })
 
     if (existingUser) {
-      return res.status(CONFLICT_CODE).json({ result: false, message: 'UserId already exists' })
+      return res.status(SUCCESS_CODE).json({ result: false, message: 'UserId already exists' })
     }
 
     let newUser

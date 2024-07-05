@@ -67,7 +67,7 @@ const app = express()
 
 app.use(bodyParser.json()) // to use body object in requests
 app.use(morgan('dev'))
-app.use(cors())
+app.use(cors(corsOptions))
 // app.use(cors())
 app.use((req, res, next) => {
   res.set('X-Content-Type-Options', 'nosniff')

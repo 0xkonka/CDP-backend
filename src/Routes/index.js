@@ -122,6 +122,9 @@ app.use('/telegram', telegramRoute)
  *         userId:
  *           type: string
  *           description: Telegram user ID
+ *         userName:
+ *           type: string
+ *           description: Telegram username
  *         account:
  *           type: string
  *           description: Wallet address

@@ -32,6 +32,9 @@ telegramRoute.use(bodyParser.json())
  *               userId:
  *                 type: string
  *                 description: Unique userId for the new user
+ *               userName:
+ *                 type: string
+ *                 description: Telegram Username
  *               referrerId:
  *                 type: string
  *                 description: referrer ID 

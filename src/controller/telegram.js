@@ -13,10 +13,10 @@ import { Telegram } from '../models/Telegram.js'
 
 export const createUserId = async (req, res, next) => {
   try {
-    const { userId, referrerId } = req.body
+    const { userId, userName, referrerId } = req.body
 
-    if (!userId) {
-      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId' })
+    if (!userId || !userName) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId or userName' })
     }
 
     const existingUser = await Telegram.findOne({ userId })
@@ -56,10 +56,10 @@ export const createUserId = async (req, res, next) => {
         { new: true }
       )
 
-      newUser = new Telegram({ userId, farmingPoint: 2000 })
+      newUser = new Telegram({ userId, userName, farmingPoint: 2000 })
       await newUser.save()
     } else {
-      newUser = new Telegram({ userId })
+      newUser = new Telegram({ userId, userName })
       await newUser.save()
     }
 

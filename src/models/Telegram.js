@@ -18,6 +18,10 @@ const TelegramSchema = new Schema({
     required: true,
     unique: true,
   },
+  userName: {
+    type: String,
+    required: true,
+  },
   account: {
     type: String,
   },

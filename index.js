@@ -22,6 +22,7 @@ const corsOptions = {
     'https://www.tren-staging.vercel.app',
     'https://app.tren.finance',
     'https://www.app.tren.finance',
+    'https://telegram-mini-app-kappa.vercel.app',
     'http://localhost:3000',
     'http://localhost:8000',
   ], // Allowed origins

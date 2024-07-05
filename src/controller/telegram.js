@@ -87,6 +87,10 @@ export const startFarmingPoint = async (req, res, next) => {
 
     const user = await Telegram.findOne({ userId })
 
+    if (!user) {
+      return res.status(NOT_FOUND_CODE).json({ result: false, message: 'User not found' })
+    }
+
     if (user.farmStartingTime === 0) {
       // User has never farmed yet
       await Telegram.findOneAndUpdate({ userId }, { farmStartingTime: Math.floor(Date.now() / 1000) }, { new: true })

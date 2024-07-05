@@ -172,7 +172,7 @@ export const updateSocialTaskStatus = async (req, res, next) => {
 
     const user = await Telegram.findOneAndUpdate(
       { userId },
-      { $inc: { farmingPoint: 200 }, $set: update },
+      { $inc: { farmingPoint: 100 }, $set: update },
       { new: true }
     )
 

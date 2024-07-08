@@ -56,7 +56,7 @@ export const createUserId = async (req, res, next) => {
         { new: true }
       )
 
-      newUser = new Telegram({ userId, userName, farmingPoint: 2000 })
+      newUser = new Telegram({ userId, userName, farmingPoint: 200 })
       await newUser.save()
     } else {
       newUser = new Telegram({ userId, userName })
@@ -95,7 +95,7 @@ export const startFarmingPoint = async (req, res, next) => {
       // User has never farmed yet
       await Telegram.findOneAndUpdate({ userId }, { farmStartingTime: Math.floor(Date.now() / 1000) }, { new: true })
 
-      return res.status(SUCCESS_CODE).json({ result: true, message: 'Farming started for the first time' })
+      return res.status(SUCCESS_CODE).json({ result: true, data: 0 })
     }
 
     if (user && has8HoursPassed(user.farmStartingTime)) {

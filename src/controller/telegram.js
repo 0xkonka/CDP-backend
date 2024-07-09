@@ -56,7 +56,7 @@ export const createUserId = async (req, res, next) => {
         { new: true }
       )
 
-      newUser = new Telegram({ userId, userName, farmingPoint: 200 })
+      newUser = new Telegram({ userId, userName, farmingPoint: 2000 })
       await newUser.save()
     } else {
       newUser = new Telegram({ userId, userName })

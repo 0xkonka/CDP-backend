@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes, adminRedeemInviteCode, getUserReferrer } from '../controller/referral.js'
+import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes, adminRedeemInviteCode, getUserReferrer, getInviteCodeStatus } from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
 
@@ -117,6 +117,21 @@ referralRoute.post('/admin/distributeCodes', verifyToken('admin'), distributeInv
  *         description: Internal server error.
  */
 referralRoute.post('/admin/redeem', verifyToken('admin'), adminRedeemInviteCode)
+
+/**
+ * @swagger
+ * /api/referral/user/inviteCodeStatus:
+ *   get:
+ *     summary: Get total redeemed inviteCodes and available inviteCodes
+ *     tags: [Referral-User]
+ *     description: Get total redeemed inviteCodes and available inviteCodes
+ *     responses:
+ *       200:
+ *         description: InviteCode status retrieved successfully.
+ *       500:
+ *         description: Internal server error.
+ */
+referralRoute.get('/user/inviteCodeStatus', getInviteCodeStatus)
 
 /**
  * @swagger

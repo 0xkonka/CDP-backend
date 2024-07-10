@@ -27,7 +27,7 @@ export const generateInviteCode = async (req, res, next) => {
         isExist = await Referral.findOne({ inviteCode })
       } while (isExist) // Repeat if the code already exists
       await Referral.create({ owner: 'admin', inviteCode })
-      generatedCodes.push(inviteCode);
+      generatedCodes.push(inviteCode)
     }
 
     return res.status(SUCCESS_CODE).send({ result: true, data: generatedCodes })
@@ -48,6 +48,20 @@ export const getAvalableInviteCodes = async (req, res, next) => {
       else hasOwner.push(referral[i].inviteCode)
     }
     return res.status(SUCCESS_CODE).send({ newCode, hasOwner })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
+
+export const getInviteCodeStatus = async (req, res, next) => {
+  try {
+    const avalialbleInviteCodes = await Referral.find({ redeemed: false })
+    const redeemedInviteCodes = await Referral.find({ redeemed: true })
+    return res
+      .status(SUCCESS_CODE)
+      .send({ result: true, redeemedCodes: redeemedInviteCodes.length, availableCodes: avalialbleInviteCodes.length })
   } catch (error) {
     console.log('error', error)
     next(error)

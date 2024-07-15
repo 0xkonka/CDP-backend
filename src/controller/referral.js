@@ -167,12 +167,25 @@ export const redeemInviteCode = async (req, res, next) => {
 
     await Referral.updateOne({ inviteCode }, { $set: { redeemer: account, redeemed: true } })
 
-    for (let i = 0; i < +count; i++)
-      await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account } })
+    // for (let i = 0; i < +count; i++)
+    // await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account } })
+
+    let generatedCodes = []
+    for (let i = 0; i < +count; i++) {
+      let inviteCode
+      let isExist
+
+      do {
+        inviteCode = generateRandomCode()
+        isExist = await Referral.findOne({ inviteCode })
+      } while (isExist) // Repeat if the code already exists
+      await Referral.create({ owner: account, inviteCode })
+      generatedCodes.push(inviteCode)
+    }
 
     await Point.findOneAndUpdate({ account }, { multiplier_permanent: 2 }, { new: true, upsert: true })
 
-    return res.status(SUCCESS_CODE).send({ result: true })
+    return res.status(SUCCESS_CODE).send({ result: true, data: generatedCodes })
   } catch (error) {
     console.log('error', error)
     next(error)

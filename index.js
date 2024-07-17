@@ -24,9 +24,9 @@ const corsOptions = {
     'https://www.app.tren.finance',
     'https://telegram.tren.finance',
     'https://www.telegram.tren.finance',
-    'https://telegram-mini-app-kappa.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:8000',
+    'https://miniapp.tren.finance',
+    // 'http://localhost:3000',
+    // 'http://localhost:8000',
   ], // Allowed origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
@@ -69,8 +69,8 @@ const app = express()
 
 app.use(bodyParser.json()) // to use body object in requests
 app.use(morgan('dev'))
-// app.use(cors(corsOptions))
-app.use(cors())
+app.use(cors(corsOptions))
+// app.use(cors())
 app.use((req, res, next) => {
   res.set('X-Content-Type-Options', 'nosniff')
   res.set('X-Frame-Options', 'DENY')

@@ -48,7 +48,7 @@ telegramRoute.use(bodyParser.json())
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/user/create', verifyToken('telegram'), createUserId)
+telegramRoute.post('/user/create', createUserId)
 
 /**
  * @swagger
@@ -79,7 +79,7 @@ telegramRoute.post('/user/create', verifyToken('telegram'), createUserId)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/farm/start', verifyToken('telegram'), startFarmingPoint)
+telegramRoute.post('/farm/start', startFarmingPoint)
 
 /**
  * @swagger
@@ -137,7 +137,7 @@ telegramRoute.get('/status/:userId', getUserStatus)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
+telegramRoute.post('/account/add', addWalletToTelegram)
 
 /**
  * @swagger
@@ -171,7 +171,7 @@ telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/social/update', verifyToken('telegram'), updateSocialTaskStatus)
+telegramRoute.post('/social/update', updateSocialTaskStatus)
 
 
 export default telegramRoute

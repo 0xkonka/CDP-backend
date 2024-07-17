@@ -86,13 +86,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware to validate Origin or x-real-ip headers
+// Middleware to validate Origin or x-real-ip headers, or allow Swagger UI access
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const realIp = req.headers['x-real-ip'];
 
   console.log('origin', origin);
   console.log('x-real-ip', realIp);
+
+  if (req.path.startsWith('/api-docs')) {
+    return next(); // Allow requests to the Swagger UI
+  }
 
   if (origin && allowedOrigins.includes(origin)) {
     return next();

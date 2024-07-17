@@ -25,6 +25,7 @@ const corsOptions = {
     'https://telegram.tren.finance',
     'https://www.telegram.tren.finance',
     'https://miniapp.tren.finance',
+    'https://telegram-mini-app-kappa.vercel.app',
     // 'http://localhost:3000',
     // 'http://localhost:8000',
   ], // Allowed origins

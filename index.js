@@ -26,7 +26,7 @@ const allowedOrigins = [
   'https://miniapp.tren.finance',
   'https://telegram-mini-app-kappa.vercel.app',
   // 'http://localhost:3000',
-  // 'http://localhost:8000',
+  'http://localhost:8000',
 ];
 
 const corsOptions = {
@@ -90,6 +90,13 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const referer = req.headers.referer;
+
+  console.log('origin', origin)
+  console.log('referer', referer)
+
+  if (req.path.startsWith('/api-docs')) {
+    return next(); // Allow requests to the Swagger UI
+  }
 
   if (origin && allowedOrigins.includes(origin)) {
     return next();

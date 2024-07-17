@@ -91,8 +91,8 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   const referer = req.headers.referer;
 
-  console.log('origin', origin)
-  console.log('referer', referer)
+  console.log('req.headers', req.headers)
+  console.log('req.hostname', req.hostname)
 
   if (req.path.startsWith('/api-docs')) {
     return next(); // Allow requests to the Swagger UI
@@ -107,6 +107,11 @@ app.use((req, res, next) => {
     if (allowedOrigins.includes(refererOrigin)) {
       return next();
     }
+  }
+
+  // Allow requests from a known domain even if Origin and Referer are undefined
+  if (req.hostname === 'telegram.tren.finance') {
+    return next();
   }
 
   return res.status(403).json({ error: 'Forbidden' });

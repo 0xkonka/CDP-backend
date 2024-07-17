@@ -25,14 +25,14 @@ const allowedOrigins = [
   'https://www.telegram.tren.finance',
   'https://miniapp.tren.finance',
   'https://telegram-mini-app-kappa.vercel.app',
-  // 'http://localhost:3000',
   'http://localhost:8000',
 ];
 
+const allowedRealIp = '167.71.105.201';
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) return callback(null, true); // Allow requests with no origin (like mobile apps, curl requests)
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
@@ -86,31 +86,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware to validate Origin/Referer headers
+// Middleware to validate Origin or x-real-ip headers
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const referer = req.headers.referer;
+  const realIp = req.headers['x-real-ip'];
 
-  console.log('req.headers', req.headers)
-  console.log('req.hostname', req.hostname)
-
-  if (req.path.startsWith('/api-docs')) {
-    return next(); // Allow requests to the Swagger UI
-  }
+  console.log('origin', origin);
+  console.log('x-real-ip', realIp);
 
   if (origin && allowedOrigins.includes(origin)) {
     return next();
   }
 
-  if (referer) {
-    const refererOrigin = new URL(referer).origin;
-    if (allowedOrigins.includes(refererOrigin)) {
-      return next();
-    }
-  }
-
-  // Allow requests from a known domain even if Origin and Referer are undefined
-  if (req.hostname === 'telegram.tren.finance') {
+  if (realIp === allowedRealIp) {
     return next();
   }
 

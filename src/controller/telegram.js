@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -91,17 +92,10 @@ export const startFarmingPoint = async (req, res, next) => {
       return res.status(NOT_FOUND_CODE).json({ result: false, message: 'User not found' })
     }
 
-    if (user.farmStartingTime === 0) {
-      // User has never farmed yet
-      await Telegram.findOneAndUpdate({ userId }, { farmStartingTime: Math.floor(Date.now() / 1000) }, { new: true })
-
-      return res.status(SUCCESS_CODE).json({ result: true, data: 0 })
-    }
-
     if (user && has8HoursPassed(user.farmStartingTime)) {
       const updatedUser = await Telegram.findOneAndUpdate(
         { userId },
-        { $inc: { farmingPoint: 8 * 25 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
+        { $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
         // { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newTelegramPoint },
         { new: true }
       )
@@ -187,3 +181,30 @@ export const updateSocialTaskStatus = async (req, res, next) => {
     return res.status(SERVER_ERROR_CODE).json({ result: false, message: SERVER_ERROR_MSG })
   }
 }
+
+export const sendNotifications = async () => {
+  try {
+    const TGUsers = await Telegram.find({});
+
+    TGUsers.forEach(async (user) => {
+      if (user.farmStartingTime !== 0 && (Math.floor(Date.now() / 1000) - user.farmStartingTime) > 8 * 3600) {
+        console.log('user.userId', user.userId)
+        await Telegram.findOneAndUpdate(
+          { userId: user.userId },
+          { farmStartingTime: 0, $inc: { farmingPoint: 200 } },
+          { new: true }
+        );
+
+        const response = await axios.post('https://telegram.tren.finance/completed-farming', { user_id: user.userId });
+
+        console.log('response', response.status)
+
+        console.log(`Notification sent for user: ${user.userId}`);
+      }
+    });
+
+  } catch (error) {
+    console.log("error")
+    // console.error('Error in sendNotifications:', error.data);
+  }
+};

@@ -7,11 +7,13 @@ import {
   updateSocialTaskStatus,
   createUserId,
 } from '../controller/telegram.js'
-import { verifyToken } from '../middleware/authMiddleware.js'
+import { validateRealIp } from '../middleware/validateRealIp.js'
 
 const telegramRoute = express.Router()
 
 telegramRoute.use(bodyParser.json())
+
+telegramRoute.use(validateRealIp);
 
 /**
  * @swagger

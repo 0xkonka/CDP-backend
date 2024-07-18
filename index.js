@@ -1,18 +1,18 @@
-import express from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
-import dotenv from 'dotenv'
-import swaggerUI from 'swagger-ui-express'
-import swaggerJsDoc from 'swagger-jsdoc'
-import bodyParser from 'body-parser'
-import NodeCron from 'node-cron'
-import apiRouter from './src/Routes/index.js'
-import helloRouter from './src/hello.js'
-import db from './src/db/index.js'
-import { sendNotifications } from './src/controller/telegram.js'
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import swaggerUI from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
+import bodyParser from 'body-parser';
+import NodeCron from 'node-cron';
+import apiRouter from './src/Routes/index.js';
+import helloRouter from './src/hello.js';
+import db from './src/db/index.js';
+import { sendNotifications } from './src/controller/telegram.js';
 
-dotenv.config()
-const PORT = process.env.PORT || 8000
+dotenv.config();
+const PORT = process.env.PORT || 8000;
 
 const corsOptions = {
   origin: [
@@ -86,10 +86,9 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs, { customCssUrl: CSS
 app.use('/', helloRouter)
 app.use('/api', apiRouter)
 
-// NodeCron.schedule('*/1 * * * *', async () => {
-app.get('/trigger-cron', async (req, res) => {
-  sendNotifications()
-  console.log('Cron job executed every 1 minute')
-})
+NodeCron.schedule('*/1 * * * *', async () => {
+  await sendNotifications();
+  console.log('Cron job executed every 1 minute');
+});
 
-app.listen(PORT, () => console.log(`Server runs on port ${PORT}`))
+app.listen(PORT, () => console.log(`Server runs on port ${PORT}`));

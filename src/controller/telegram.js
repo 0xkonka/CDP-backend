@@ -186,7 +186,7 @@ export const sendNotifications = async () => {
   try {
     const TGUsers = await Telegram.find({})
 
-    TGUsers.forEach(async (user) => {
+    for (const user of TGUsers) {
       if (user.farmStartingTime !== 0 && Math.floor(Date.now() / 1000) - user.farmStartingTime > 8 * 3600) {
         console.log('user.userId', user.userId)
         await Telegram.findOneAndUpdate(
@@ -207,7 +207,7 @@ export const sendNotifications = async () => {
 
         console.log(`Notification sent for user: ${user.userId}`)
       }
-    })
+    }
   } catch (error) {
     console.log('error')
     // console.error('Error in sendNotifications:', error.data);

@@ -88,7 +88,7 @@ app.use('/api', apiRouter)
 
 // NodeCron.schedule('*/1 * * * *', async () => {
 app.get('/trigger-cron', async (req, res) => {
-  await sendNotifications()
+  sendNotifications()
   console.log('Cron job executed every 1 minute')
 })
 

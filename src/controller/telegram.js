@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 import {
   BAD_REQ_CODE,
   CONFLICT_CODE,
@@ -184,27 +184,49 @@ export const updateSocialTaskStatus = async (req, res, next) => {
 
 export const sendNotifications = async () => {
   try {
-    const TGUsers = await Telegram.find({});
+    const TGUsers = await Telegram.find({})
 
     TGUsers.forEach(async (user) => {
-      if (user.farmStartingTime !== 0 && (Math.floor(Date.now() / 1000) - user.farmStartingTime) > 8 * 3600) {
+      if (user.farmStartingTime !== 0 && Math.floor(Date.now() / 1000) - user.farmStartingTime > 8 * 3600) {
         console.log('user.userId', user.userId)
         await Telegram.findOneAndUpdate(
           { userId: user.userId },
           { farmStartingTime: 0, $inc: { farmingPoint: 200 } },
           { new: true }
-        );
+        )
 
-        const response = await axios.post('https://telegram.tren.finance/completed-farming', { user_id: user.userId });
+        // const response = await axios.post('https://telegram.tren.finance/completed-farming', { user_id: user.userId })
 
-        console.log('response', response.status)
+        const messageText =
+          'Congrats!\n\nYou’ve earned 200 points by farming. Head over to the app to start farming again.'
+        const TASK_WEB_APP_URL_FARM = 'https://miniapp.tren.finance/farm.html'
+        const keyboard = [[{ text: '→ Start Farming', web_app: { url: TASK_WEB_APP_URL_FARM } }]]
+        const replyMarkup = { inline_keyboard: keyboard }
 
-        console.log(`Notification sent for user: ${user.userId}`);
+        await sendTelegramMessage(user.userId, messageText, replyMarkup)
+
+        console.log(`Notification sent for user: ${user.userId}`)
       }
-    });
-
+    })
   } catch (error) {
-    console.log("error")
+    console.log('error')
     // console.error('Error in sendNotifications:', error.data);
   }
-};
+}
+
+const sendTelegramMessage = async (chatId, text, replyMarkup) => {
+  const { BOT_TOKEN } = process.env
+
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`
+  try {
+    const response = await axios.post(url, {
+      chat_id: chatId,
+      text: text,
+      reply_markup: replyMarkup,
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error sending Telegram message:', error.response ? error.response.data : error.message)
+    throw error
+  }
+}

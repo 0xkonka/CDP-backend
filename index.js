@@ -52,7 +52,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'https://be-express-lime.vercel.app/',
+        url: 'https://api.tren.finance/',
         description: 'Vercel Deployment',
       },
       {

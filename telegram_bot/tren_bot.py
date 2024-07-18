@@ -34,7 +34,7 @@ def save_user_data():
 
 def get_user_xp(address):
     try:
-        response = requests.get(f'https://be-express-lime.vercel.app/api/point/user/{address}')
+        response = requests.get(f'https://api.tren.finance/api/point/user/{address}')
         response.raise_for_status()
         data = response.json()
         print(f'{data}')  # Debugging statement to print the entire response

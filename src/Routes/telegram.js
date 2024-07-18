@@ -13,7 +13,7 @@ const telegramRoute = express.Router()
 
 telegramRoute.use(bodyParser.json())
 
-telegramRoute.use(validateRealIp);
+// telegramRoute.use(validateRealIp);
 
 /**
  * @swagger

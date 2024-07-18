@@ -131,7 +131,7 @@ referralRoute.post('/admin/redeem', verifyToken('admin'), adminRedeemInviteCode)
  *       500:
  *         description: Internal server error.
  */
-referralRoute.get('/user/inviteCodeStatus', getInviteCodeStatus)
+referralRoute.get('/user/inviteCodeStatus', verifyToken('admin'), getInviteCodeStatus)
 
 /**
  * @swagger

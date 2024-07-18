@@ -90,11 +90,13 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const realIp = req.headers['x-real-ip'];
+  const reffer = req.headers.referer;
 
   console.log('origin', origin);
   console.log('x-real-ip', realIp);
-
-  if (req.path.startsWith('/api-docs')) {
+  console.log('reffer', reffer)
+  
+  if (req.path.startsWith('/api-docs') || reffer.includes('/api-docs')) {
     return next(); // Allow requests to the Swagger UI
   }
 

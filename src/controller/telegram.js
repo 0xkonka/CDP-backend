@@ -109,6 +109,7 @@ export const startFarmingPoint = async (req, res, next) => {
           // { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newTelegramPoint },
           { new: true }
         )
+        await sendTelegramMessage(userId)
 
         return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.farmingPoint })
       }

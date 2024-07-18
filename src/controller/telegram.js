@@ -93,17 +93,25 @@ export const startFarmingPoint = async (req, res, next) => {
     }
 
     if (user && has8HoursPassed(user.farmStartingTime)) {
-      const updatedUser = await Telegram.findOneAndUpdate(
-        { userId },
-        {
-          $inc: { farmingPoint: user.farmStartingTime == 0 ? 0 : 200 }, // if 0 , already increased by cron job
-          $set: { farmStartingTime: Math.floor(Date.now() / 1000) },
-        },
-        // { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newTelegramPoint },
-        { new: true }
-      )
+      if (user.farmStartingTime == 0) {
+        // if 0, farming point was already increased via cron job
+        const updatedUser = await Telegram.findOneAndUpdate(
+          { userId },
+          { $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
+          { new: true }
+        )
 
-      return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.farmingPoint })
+        return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.farmingPoint })
+      } else {
+        const updatedUser = await Telegram.findOneAndUpdate(
+          { userId },
+          { $inc: { farmingPoint: 200 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
+          // { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newTelegramPoint },
+          { new: true }
+        )
+
+        return res.status(SUCCESS_CODE).json({ result: true, data: updatedUser.farmingPoint })
+      }
     } else {
       return res
         .status(CONFLICT_CODE)
@@ -200,13 +208,7 @@ export const sendNotifications = async () => {
 
         // const response = await axios.post('https://telegram.tren.finance/completed-farming', { user_id: user.userId })
 
-        const messageText =
-          'Congrats!\n\nYou’ve earned 200 points by farming. Head over to the app to start farming again.'
-        const TASK_WEB_APP_URL_FARM = 'https://miniapp.tren.finance/farm.html'
-        const keyboard = [[{ text: '→ Start Farming', web_app: { url: TASK_WEB_APP_URL_FARM } }]]
-        const replyMarkup = { inline_keyboard: keyboard }
-
-        await sendTelegramMessage(user.userId, messageText, replyMarkup)
+        await sendTelegramMessage(user.userId)
 
         console.log(`Notification sent for user: ${user.userId}`)
       }
@@ -217,7 +219,12 @@ export const sendNotifications = async () => {
   }
 }
 
-const sendTelegramMessage = async (chatId, text, replyMarkup) => {
+const sendTelegramMessage = async (chatId) => {
+  const text = 'Congrats!\n\nYou’ve earned 200 points by farming. Head over to the app to start farming again.'
+  const TASK_WEB_APP_URL_FARM = 'https://miniapp.tren.finance/farm.html'
+  const keyboard = [[{ text: '→ Start Farming', web_app: { url: TASK_WEB_APP_URL_FARM } }]]
+  const replyMarkup = { inline_keyboard: keyboard }
+
   const { BOT_TOKEN } = process.env
 
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`

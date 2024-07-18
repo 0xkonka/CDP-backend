@@ -6,7 +6,7 @@ export const validateRealIp = (req, res, next) => {
   const realIp = req.headers['x-real-ip']
   const origin = req.headers.origin
 
-  console.log('x-real-ip', req.headers)
+  console.log('x-real-ip', req)
 
   if (origin && origin == 'https://miniapp.tren.finance') {
     return next()

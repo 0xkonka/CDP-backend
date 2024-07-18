@@ -95,7 +95,7 @@ export const startFarmingPoint = async (req, res, next) => {
     if (user && has8HoursPassed(user.farmStartingTime)) {
       const updatedUser = await Telegram.findOneAndUpdate(
         { userId },
-        { $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
+        { $inc: { farmingPoint: 200 }, $set: { farmStartingTime: Math.floor(Date.now() / 1000) } },
         // { farmStartingTime: Math.floor(Date.now() / 1000), farmingPoint: newTelegramPoint },
         { new: true }
       )

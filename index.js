@@ -26,6 +26,7 @@ const allowedOrigins = [
   'https://miniapp.tren.finance',
   'https://telegram-mini-app-kappa.vercel.app',
   'http://localhost:8000',
+  'http://localhost:3000',
   'https://be-express-lime.vercel.app', // Added deployment domain
 ];
 

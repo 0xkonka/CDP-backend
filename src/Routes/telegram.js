@@ -6,8 +6,10 @@ import {
   addWalletToTelegram,
   updateSocialTaskStatus,
   createUserId,
+  registerUser,
 } from '../controller/telegram.js'
 import { validateRealIp } from '../middleware/validateRealIp.js'
+import { verifyToken } from '../middleware/authMiddleware.js'
 
 const telegramRoute = express.Router()
 
@@ -34,9 +36,6 @@ telegramRoute.use(bodyParser.json())
  *               userId:
  *                 type: string
  *                 description: Unique userId for the new user
- *               userName:
- *                 type: string
- *                 description: Telegram Username
  *               referrerId:
  *                 type: string
  *                 description: referrer ID 
@@ -50,7 +49,41 @@ telegramRoute.use(bodyParser.json())
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/user/create', createUserId)
+telegramRoute.post('/user/create', verifyToken('telegram'), createUserId)
+
+/**
+ * @swagger
+ * /api/telegram/user/register:
+ *   post:
+ *     summary: Register a new user with a unique userId
+ *     tags: [Telegram]
+ *     description: Register a new user with a unique userId.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: Unique userId for the new user
+ *               userName:
+ *                 type: string
+ *                 description: Telegram Username
+ *     responses:
+ *       200:
+ *         description: User registered successfully.
+ *       400:
+ *         description: Bad request, missing userId.
+ *       409:
+ *         description: Conflict, userId already exists.
+ *       500:
+ *         description: Internal server error.
+ */
+telegramRoute.post('/user/register', verifyToken('telegram'), registerUser)
 
 /**
  * @swagger
@@ -81,7 +114,7 @@ telegramRoute.post('/user/create', createUserId)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/farm/start', startFarmingPoint)
+telegramRoute.post('/farm/start', verifyToken('telegram'), startFarmingPoint)
 
 /**
  * @swagger
@@ -107,7 +140,7 @@ telegramRoute.post('/farm/start', startFarmingPoint)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.get('/status/:userId', getUserStatus)
+telegramRoute.get('/status/:userId', verifyToken('telegram'), getUserStatus)
 
 /**
  * @swagger
@@ -139,7 +172,7 @@ telegramRoute.get('/status/:userId', getUserStatus)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/account/add', addWalletToTelegram)
+telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
 
 /**
  * @swagger
@@ -173,7 +206,7 @@ telegramRoute.post('/account/add', addWalletToTelegram)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/social/update', updateSocialTaskStatus)
+telegramRoute.post('/social/update', verifyToken('telegram'), updateSocialTaskStatus)
 
 
 export default telegramRoute

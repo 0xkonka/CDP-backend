@@ -14,10 +14,10 @@ import { Telegram } from '../models/Telegram.js'
 
 export const createUserId = async (req, res, next) => {
   try {
-    const { userId, userName, referrerId } = req.body
+    const { userId, referrerId } = req.body
 
-    if (!userId || !userName) {
-      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId or userName' })
+    if (!userId) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId' })
     }
 
     const existingUser = await Telegram.findOne({ userId })
@@ -52,19 +52,46 @@ export const createUserId = async (req, res, next) => {
         { userId: referrerId },
         {
           $inc: { referralPoint: bonusPoints },
-          $addToSet: { referrers: { referrerId: userId, timestamp: Math.floor(Date.now() / 1000) } },
+          // $addToSet: { referrers: { referrerId: userId, timestamp: Math.floor(Date.now() / 1000) } },
         },
         { new: true }
       )
 
-      newUser = new Telegram({ userId, userName, farmingPoint: 2000 })
+      newUser = new Telegram({ userId, farmingPoint: 2000 })
       await newUser.save()
     } else {
-      newUser = new Telegram({ userId, userName })
+      newUser = new Telegram({ userId })
       await newUser.save()
     }
 
     return res.status(SUCCESS_CODE).json({ result: true, data: newUser })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).json({ result: false, message: SERVER_ERROR_MSG })
+  }
+}
+
+export const registerUser = async (req, res, next) => {
+  try {
+    const { userId, userName } = req.body
+
+    if (!userId || !userName) {
+      return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing userId or userName' })
+    }
+
+    const existingUser = await Telegram.findOne({ userId })
+
+    if (!existingUser) {
+      return res.status(SUCCESS_CODE).json({ result: false, message: 'UserId no exists' })
+    }
+
+    if (existingUser.userName)
+      return res.status(SUCCESS_CODE).json({ result: false, message: 'Username already exists' })
+
+    const registeredUser = await Telegram.findOneAndUpdate({ userId }, { userName })
+
+    return res.status(SUCCESS_CODE).json({ result: true, data: registeredUser })
   } catch (error) {
     console.log('error', error)
     next(error)

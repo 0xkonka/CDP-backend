@@ -140,7 +140,7 @@ telegramRoute.post('/farm/start', verifyToken('telegram'), startFarmingPoint)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.get('/status/:userId', verifyToken('telegram'), getUserStatus)
+telegramRoute.get('/status/:userId', getUserStatus)
 
 /**
  * @swagger

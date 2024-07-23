@@ -12,6 +12,7 @@ import {
 import { Point } from '../models/Point.js'
 import fetch from 'node-fetch'
 import { updateTreningPoints } from '../contractCall/pointKeeper.js'
+import { Referral } from '../models/Referral.js'
 
 export const distributeOffChainPoint = async (req, res, next) => {
   try {
@@ -23,11 +24,26 @@ export const distributeOffChainPoint = async (req, res, next) => {
 
     const existingPoint = await Point.findOne({ account })
 
-    const newXPPoint = existingPoint ? existingPoint.xpPoint + xpPoint : xpPoint
+    const referrer = (await Referral.findOne({ redeemer: account })).owner
 
-    await Point.findOneAndUpdate({ account }, { xpPoint: newXPPoint }, { new: true, upsert: true })
+    const newXPPoint = existingPoint ? existingPoint.xpPoint + xpPoint * 0.85 : xpPoint * 0.85
 
-    return res.status(SUCCESS_CODE).send({ result: true, data: newXPPoint })
+    const updatedUser = await Point.findOneAndUpdate(
+      { account },
+      { $addToSet: { xpPoint: { point: xpPoint * 0.85, timestamp: Math.floor(Date.now() / 1000) } } },
+      // { $inc: { xpPoint: xpPoint * 0.85 } },
+      // { xpPoint: newXPPoint },
+      { new: true, upsert: true }
+    )
+    const updatedReferrer = await Point.findOneAndUpdate(
+      { account: referrer },
+      { $addToSet: { referralPoint: { point: xpPoint * 0.15, timestamp: Math.floor(Date.now() / 1000) } } },
+      // { $inc: { referralPoint: xpPoint * 0.15 } },
+      // { referralPoint: newXPPoint },
+      { new: true, upsert: true }
+    )
+
+    return res.status(SUCCESS_CODE).send({ result: true, updatedUser, updatedReferrer })
   } catch (error) {
     console.log('error', error)
     next(error)
@@ -199,10 +215,21 @@ export const getUserOnChainPoint = async (req, res, next) => {
     const data = await response.json()
     const trenXPPoints = data.data.trenXPPoints
 
-    const totalAmount = trenXPPoints.reduce((acc, point) => acc + BigInt(point.amount), BigInt(0))
-    const result = Number(totalAmount / BigInt(10 ** 18))
-
-    return res.status(SUCCESS_CODE).send({ result: true, data: result })
+    const totalBorrowedAmount = trenXPPoints.reduce(
+      (acc, point) => (acc + point.type == 0 ? BigInt(point.amount) : BigInt(0)),
+      BigInt(0)
+    )
+    const totalStakedAmount = trenXPPoints.reduce(
+      (acc, point) => (acc + point.type == 1 ? BigInt(point.amount) : BigInt(0)),
+      BigInt(0)
+    )
+    return res.status(SUCCESS_CODE).send({
+      result: true,
+      data: {
+        totalBorrowedAmount: Number(totalBorrowedAmount / BigInt(10 ** 18)),
+        totalStakedAmount: Number(totalStakedAmount / BigInt(10 ** 18)),
+      },
+    })
   } catch (error) {
     console.log('error', error)
     next(error)

@@ -52,7 +52,7 @@ export const createUserId = async (req, res, next) => {
         { userId: referrerId },
         {
           $inc: { referralPoint: bonusPoints },
-          // $addToSet: { referrers: { referrerId: userId, timestamp: Math.floor(Date.now() / 1000) } },
+          $addToSet: { referrers: { referrerId: userId, timestamp: Math.floor(Date.now() / 1000) } },
         },
         { new: true }
       )

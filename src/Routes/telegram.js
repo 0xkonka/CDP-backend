@@ -7,6 +7,7 @@ import {
   updateSocialTaskStatus,
   createUserId,
   registerUser,
+  getAppStatus,
 } from '../controller/telegram.js'
 import { validateRealIp } from '../middleware/validateRealIp.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
@@ -111,6 +112,25 @@ telegramRoute.post('/user/register', registerUser)
  *         description: Internal server error.
  */
 telegramRoute.post('/farm/start', startFarmingPoint)
+
+/**
+ * @swagger
+ * /api/telegram/status:
+ *   get:
+ *     summary: Get Telegram Status
+ *     tags: [Telegram]
+ *     description: Retrieve Telegram status
+ *     responses:
+ *       200:
+ *         description: Telegram App status retrieved successfully.
+ *       400:
+ *         description: Bad request, missing userId.
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
+telegramRoute.get('/status/', getAppStatus)
 
 /**
  * @swagger

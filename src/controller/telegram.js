@@ -152,6 +152,20 @@ export const startFarmingPoint = async (req, res, next) => {
   }
 }
 
+export const getAppStatus = async (req, res, next) => {
+  try {
+    const totalUser = (await Telegram.find({})).length
+
+    const registeredUser = await Telegram.countDocuments({ userId: { $exists: true }, userName: { $exists: true } })
+
+    return res.status(SUCCESS_CODE).json({ result: true, totalUser, registeredUser })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).json({ result: false, message: SERVER_ERROR_MSG })
+  }
+}
+
 export const getUserStatus = async (req, res, next) => {
   try {
     const { userId } = req.params

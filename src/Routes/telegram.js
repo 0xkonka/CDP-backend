@@ -58,8 +58,6 @@ telegramRoute.post('/user/create', verifyToken('telegram'), createUserId)
  *     summary: Register a new user with a unique userId
  *     tags: [Telegram]
  *     description: Register a new user with a unique userId.
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -83,7 +81,7 @@ telegramRoute.post('/user/create', verifyToken('telegram'), createUserId)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/user/register', verifyToken('telegram'), registerUser)
+telegramRoute.post('/user/register', registerUser)
 
 /**
  * @swagger
@@ -92,8 +90,6 @@ telegramRoute.post('/user/register', verifyToken('telegram'), registerUser)
  *     summary: Start Farming XP Points
  *     tags: [Telegram]
  *     description: Start farming XP points for a Telegram user.
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -114,7 +110,7 @@ telegramRoute.post('/user/register', verifyToken('telegram'), registerUser)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/farm/start', verifyToken('telegram'), startFarmingPoint)
+telegramRoute.post('/farm/start', startFarmingPoint)
 
 /**
  * @swagger
@@ -149,8 +145,6 @@ telegramRoute.get('/status/:userId', getUserStatus)
  *     summary: Add Wallet to Telegram Account
  *     tags: [Telegram]
  *     description: Add a wallet address to a Telegram account for farming XP points.
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -172,7 +166,7 @@ telegramRoute.get('/status/:userId', getUserStatus)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
+telegramRoute.post('/account/add', addWalletToTelegram)
 
 /**
  * @swagger
@@ -181,8 +175,6 @@ telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
  *     summary: Update Social Task Status
  *     tags: [Telegram]
  *     description: Update the status of social tasks for a Telegram user.
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -206,7 +198,7 @@ telegramRoute.post('/account/add', verifyToken('telegram'), addWalletToTelegram)
  *       500:
  *         description: Internal server error.
  */
-telegramRoute.post('/social/update', verifyToken('telegram'), updateSocialTaskStatus)
+telegramRoute.post('/social/update', updateSocialTaskStatus)
 
 
 export default telegramRoute

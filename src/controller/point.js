@@ -197,6 +197,7 @@ export const getUserOnChainPoint = async (req, res, next) => {
       orderDirection: desc
     ) {
       id
+      type
       account
       amount
       blockTimestamp
@@ -216,11 +217,11 @@ export const getUserOnChainPoint = async (req, res, next) => {
     const trenXPPoints = data.data.trenXPPoints
 
     const totalBorrowedAmount = trenXPPoints.reduce(
-      (acc, point) => (acc + point.type == 0 ? BigInt(point.amount) : BigInt(0)),
+      (acc, point) => (acc + (point.type == 0 ? BigInt(point.amount) : BigInt(0))),
       BigInt(0)
     )
     const totalStakedAmount = trenXPPoints.reduce(
-      (acc, point) => (acc + point.type == 1 ? BigInt(point.amount) : BigInt(0)),
+      (acc, point) => (acc + (point.type == 1 ? BigInt(point.amount) : BigInt(0))),
       BigInt(0)
     )
     return res.status(SUCCESS_CODE).send({

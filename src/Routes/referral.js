@@ -125,15 +125,13 @@ referralRoute.post('/admin/redeem', verifyToken('admin'), adminRedeemInviteCode)
  *     summary: Get total redeemed inviteCodes and available inviteCodes
  *     tags: [Referral-User]
  *     description: Get total redeemed inviteCodes and available inviteCodes
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: InviteCode status retrieved successfully.
  *       500:
  *         description: Internal server error.
  */
-referralRoute.get('/user/inviteCodeStatus', verifyToken('admin'), getInviteCodeStatus)
+referralRoute.get('/user/inviteCodeStatus', getInviteCodeStatus)
 
 /**
  * @swagger

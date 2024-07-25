@@ -77,19 +77,33 @@ export const distributeInviteCode = async (req, res, next) => {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account' })
     }
 
-    for (let i = 0; i < +count; i++) {
-      const docsToUpdate = await Referral.find({ owner: 'admin', redeemed: false })
-        .limit(count) // Limit to 5 documents
-        .select('_id') // Only fetch the _id field
+    // for (let i = 0; i < +count; i++) {
+    //   const docsToUpdate = await Referral.find({ owner: 'admin', redeemed: false })
+    //     .limit(count) // Limit to 5 documents
+    //     .select('_id') // Only fetch the _id field
 
-      if (docsToUpdate.length == count) {
-        const idsToUpdate = docsToUpdate.map((doc) => doc._id)
-        const updateResult = await Referral.updateMany({ _id: { $in: idsToUpdate } }, { $set: { owner: account } })
-        return res.status(SUCCESS_CODE).send({ result: true })
-      } else {
-        res.status(BAD_REQ_CODE).send({ result: false, messages: 'Not enough inviteCodes' })
-      }
+    //   if (docsToUpdate.length == count) {
+    //     const idsToUpdate = docsToUpdate.map((doc) => doc._id)
+    //     const updateResult = await Referral.updateMany({ _id: { $in: idsToUpdate } }, { $set: { owner: account } })
+    //     return res.status(SUCCESS_CODE).send({ result: true })
+    //   } else {
+    //     res.status(BAD_REQ_CODE).send({ result: false, messages: 'Not enough inviteCodes' })
+    //   }
+    // }
+
+    let generatedCodes = []
+    for (let i = 0; i < +count; i++) {
+      let inviteCode
+      let isExist
+
+      do {
+        inviteCode = generateRandomCode()
+        isExist = await Referral.findOne({ inviteCode })
+      } while (isExist) // Repeat if the code already exists
+      await Referral.create({ owner: account, inviteCode })
+      generatedCodes.push(inviteCode)
     }
+    return res.status(SUCCESS_CODE).send({ result: true, data: generatedCodes })
   } catch (error) {
     console.log('error', error)
     next(error)

@@ -3,7 +3,6 @@ import { Point } from '../models/Point.js'
 import { treningPoints } from '../utils/web3.js'
 import { Referral } from '../models/Referral.js'
 import { getLastUpdateTime, updatePointStat } from '../controller/pointStat.js'
-import { formatEther, parseEther } from 'ethers/lib/utils.js'
 
 const url = process.env.SUBGRAPH_URL
 
@@ -13,28 +12,29 @@ const url = process.env.SUBGRAPH_URL
 export const updateTreningPoints = async () => {
   try {
     const lastUpdateTime = await getLastUpdateTime()
-    console.log('lastUpdateTime', lastUpdateTime)
-
-    const timestamp = lastUpdateTime || Math.floor(Date.now() / 1000) - 90 * 24 * 60 * 60
+    
+    const timestamp = lastUpdateTime // || Math.floor(Date.now() / 1000) - 90 * 24 * 60 * 60
 
     const onChainPoints = await fetchOnChainPoints(timestamp)
     console.log('onChainPoints', onChainPoints)
 
-    const offChainPoints = await fetchOffChainPoints()
+    const offChainPoints = await fetchOffChainPoints(timestamp)
     console.log('offChainPoints', offChainPoints)
 
     const combinedPoints = combinePoints(onChainPoints, offChainPoints)
-    console.log('combinedPointsArray', combinedPoints)
+    // console.log('combinedPointsArray', combinedPoints)
 
     const referrals = await Referral.find({ redeemed: true })
     const updatedPointsArray = await distributeReferralPoints(onChainPoints, referrals, combinedPoints)
     console.log('updatedPointsArray', updatedPointsArray)
 
-    await resetXpPoints(updatedPointsArray)
+    if (updatedPointsArray.length > 0) {
+      await resetXpPoints(updatedPointsArray)
 
-    const tx = await treningPoints.updatePoints(updatedPointsArray)
-    await tx.wait()
-    console.log('tx', tx.hash)
+      const tx = await treningPoints.updatePoints(updatedPointsArray)
+      await tx.wait()
+      console.log('tx', tx.hash)
+    }
 
     await updatePointStat()
   } catch (err) {
@@ -83,19 +83,23 @@ const fetchOnChainPoints = async (timestamp) => {
 /**
  * Fetch off-chain points from the database.
  */
-const fetchOffChainPoints = async () => {
+const fetchOffChainPoints = async (lastUpdateTime) => {
   return await Point.aggregate([
     // Add fields to calculate the sum of xpPoint and referralPoint with pending flag true
     {
       $addFields: {
-        xpPoint_sum: { $sum: '$xpPoint.point' },
         referralPoint_filtered: {
           $filter: {
             input: '$referralPoint',
             as: 'referral',
-            cond: { $eq: ['$$referral.pending', true] },
+            cond: { $gt: ['$$referral.timestamp', lastUpdateTime] },
           },
         },
+      },
+    },
+    {
+      $addFields: {
+        xpPoint_sum: { $sum: '$xpPoint.point' },
         referralPoint_sum: { $sum: '$referralPoint_filtered.point' },
       },
     },
@@ -130,13 +134,16 @@ const combinePoints = (onChainPoints, offChainPoints) => {
   }
 
   offChainPoints.forEach((point) => {
-    const { account, xpPoint } = point
-    const totalXpPoints = xpPoint.reduce((acc, xp) => acc + xp.point, 0)
+    const { account, xpPoint_sum, referralPoint_sum } = point
+    // const totalXpPoints = xpPoint.reduce((acc, xp) => acc + xp.point, 0)
     const lowerCaseAccount = account.toLowerCase()
     if (combinedPoints[lowerCaseAccount]) {
-      combinedPoints[lowerCaseAccount].total += BigInt(totalXpPoints)
+      combinedPoints[lowerCaseAccount].total += BigInt(xpPoint_sum + referralPoint_sum) * BigInt(10 ** 18)
     } else {
-      combinedPoints[lowerCaseAccount] = { onChain: BigInt(0), total: BigInt(totalXpPoints) }
+      combinedPoints[lowerCaseAccount] = {
+        onChain: BigInt(0),
+        total: BigInt(xpPoint_sum + referralPoint_sum) * BigInt(10 ** 18),
+      }
     }
   })
 
@@ -167,19 +174,17 @@ const distributeReferralPoints = async (onChainPoints, referrals, combinedPoints
 
     // Distribute 15% of on-chain points to referrer
     const referral = referrals.find((ref) => ref.redeemer.toLowerCase() === user)
-    if (referral) {
+    if (referral && referral.owner.toLowerCase() !== 'admin' && onChainPointsForUser > 0) {
       const referrerPoints = (onChainPointsForUser * BigInt(15)) / BigInt(100)
-      const updatedPoints = totalPoints - referrerPoints
+      const updatedPoints = updatedPointsMap.get(user) - referrerPoints
 
       updatedPointsMap.set(user, updatedPoints)
 
       const referrer = referral.owner.toLowerCase()
-      if (referrer !== 'admin') {
-        if (updatedPointsMap.has(referrer)) {
-          updatedPointsMap.set(referrer, updatedPointsMap.get(referrer) + referrerPoints)
-        } else {
-          updatedPointsMap.set(referrer, referrerPoints)
-        }
+      if (updatedPointsMap.has(referrer)) {
+        updatedPointsMap.set(referrer, updatedPointsMap.get(referrer) + referrerPoints)
+      } else {
+        updatedPointsMap.set(referrer, referrerPoints)
       }
     }
   })
@@ -192,23 +197,10 @@ const distributeReferralPoints = async (onChainPoints, referrals, combinedPoints
  * Reset xpPoint to 0 for updated accounts in the Point DB and set pending to false for referralPoint.
  */
 const resetXpPoints = async (updatedPointsArray) => {
-  const updatedAccounts = updatedPointsArray.map((entry) => entry.user.toLowerCase())
-
-  console.log('updatedAccounts', updatedAccounts)
-
-  // Fetch accounts from the database and convert to lowercase for comparison
-  const accounts = await Point.find({ account: { $in: updatedAccounts } }, { account: 1 })
-  const accountsToUpdate = accounts
-    .filter((acc) => updatedAccounts.includes(acc.account.toLowerCase()))
-    .map((acc) => acc.account)
-
-  console.log('accountsToUpdate', accountsToUpdate)
+  const updatedAccounts = updatedPointsArray.map((entry) => entry.user)
 
   // Update the documents in MongoDB
-  await Point.updateMany(
-    { account: { $in: accountsToUpdate } },
-    { $set: { xpPoint: [], 'referralPoint.$[].pending': false } }
-  )
+  await Point.updateMany({ account: { $in: updatedAccounts } }, { $set: { xpPoint: [] } })
 
-  console.log('Updated xpPoint to 0 and set pending to false for referralPoint for accounts:', accountsToUpdate)
+  console.log('Updated xpPoint to 0 for accounts:', updatedAccounts)
 }

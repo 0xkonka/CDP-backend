@@ -14,6 +14,19 @@ import fetch from 'node-fetch'
 import { updateTreningPoints } from '../contractCall/pointKeeper.js'
 import { Referral } from '../models/Referral.js'
 import { formatEther } from 'ethers/lib/utils.js'
+import { PointStat } from '../models/PointStat.js'
+
+export const getPointEpoch = async (req, res, next) => {
+  try {
+    const pointStat = await PointStat.findOne({})
+
+    return res.status(SUCCESS_CODE).send({ result: true, data: pointStat })
+  } catch (error) {
+    console.log('error', error)
+    next(error)
+    return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
+  }
+}
 
 export const distributeOffChainPoint = async (req, res, next) => {
   try {
@@ -26,7 +39,7 @@ export const distributeOffChainPoint = async (req, res, next) => {
     const referrer = (await Referral.findOne({ redeemer: account.toLowerCase() })).owner
 
     const updatedUser = await Point.findOneAndUpdate(
-      { account : account.toLowerCase() },
+      { account: account.toLowerCase() },
       { $addToSet: { xpPoint: { point: xpPoint * 0.85, timestamp: Math.floor(Date.now() / 1000) } } },
       { new: true, upsert: true }
     )
@@ -57,7 +70,7 @@ export const addMultiplierPermanent = async (req, res, next) => {
     }
 
     const point = await Point.findOneAndUpdate(
-      { account : account.toLowerCase() },
+      { account: account.toLowerCase() },
       { $inc: { multiplier_permanent: multiplier } },
       { new: true, upsert: true }
     )
@@ -78,7 +91,7 @@ export const addMultiplierTemporary = async (req, res, next) => {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid account' })
     }
 
-    const point = await Point.findOne({ account : account.toLowerCase() })
+    const point = await Point.findOne({ account: account.toLowerCase() })
 
     if (!point) return res.status(BAD_REQ_CODE).json({ result: false, message: 'Invalid account' })
 
@@ -94,7 +107,7 @@ export const addMultiplierTemporary = async (req, res, next) => {
     }
 
     const updatedPoint = await Point.findOneAndUpdate(
-      { account : account.toLowerCase() },
+      { account: account.toLowerCase() },
       {
         $set: {
           'multiplier_temporary.value': multiplier,
@@ -402,7 +415,7 @@ export const getUserPoint = async (req, res, next) => {
 
     // Get off-chain Trening Points for the specific user within the last 24 hours
     const offChainPoints = await Point.findOne({
-      account : account.toLowerCase(),
+      account: account.toLowerCase(),
       // $or: [{ 'xpPoint.timestamp': { $gte: now - period } }, { 'referralPoint.timestamp': { $gte: now - period } }],
     }).select('account xpPoint referralPoint')
 

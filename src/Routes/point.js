@@ -10,6 +10,7 @@ import {
   getUserOnChainPoint,
   getPointList,
   getUserPoint,
+  getPointEpoch,
 } from '../controller/point.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
@@ -115,6 +116,23 @@ pointRoute.post('/admin/addMultiplierPermanent', verifyToken('admin'), addMultip
  *         description: Internal server error.
  */
 pointRoute.post('/admin/addMultiplierTemporary', addMultiplierTemporary)
+
+/**
+ * @swagger
+ * /api/point/pointEpoch:
+ *   get:
+ *     summary: Get point epoch
+ *     tags: [Point-User]
+ *     description: Retrieves all point epoch
+ *     responses:
+ *       200:
+ *         description: Points information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+pointRoute.get('/pointEpoch', getPointEpoch)
 
 /**
  * @swagger

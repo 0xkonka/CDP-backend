@@ -10,6 +10,7 @@ import apiRouter from './src/Routes/index.js';
 import helloRouter from './src/hello.js';
 import db from './src/db/index.js';
 import { sendNotifications } from './src/controller/telegram.js';
+import { updateTreningPoints } from './src/contractCall/pointKeeper.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 8000;
@@ -90,5 +91,12 @@ NodeCron.schedule('*/1 * * * *', async () => {
   await sendNotifications();
   console.log('Cron job executed every 1 minute');
 });
+
+NodeCron.schedule('0 0 * * *', async () => {
+  await updateTreningPoints();
+  console.log('Cron job executed at UTC 00:00:00');
+});
+
+await updateTreningPoints();
 
 app.listen(PORT, () => console.log(`Server runs on port ${PORT}`));

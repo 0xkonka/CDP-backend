@@ -8,6 +8,8 @@ import {
   getOnChainPointList,
   getOffChainPointList,
   getUserOnChainPoint,
+  getPointList,
+  getUserPoint,
 } from '../controller/point.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
 
@@ -84,10 +86,8 @@ pointRoute.post('/admin/addMultiplierPermanent', verifyToken('admin'), addMultip
  * /api/point/admin/addMultiplierTemporary:
  *   post:
  *     summary: Set the temporary multiplier for experience points
- *     tags: [Point-Admin]
+ *     tags: [Point-User]
  *     description: Sets a multiplier for experience points for a specific account, applicable until a specified end time. ** period unit is DAY **
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -100,9 +100,11 @@ pointRoute.post('/admin/addMultiplierPermanent', verifyToken('admin'), addMultip
  *                 description: The account identifier.
  *               multiplier:
  *                 type: number
+ *                 default: 2
  *                 description: Multiplier value to set.
  *               period:
  *                 type: number
+ *                 default: 1
  *                 descripton: multiplier duration time, unit is day. if 0 -> endless
  *     responses:
  *       200:
@@ -112,7 +114,24 @@ pointRoute.post('/admin/addMultiplierPermanent', verifyToken('admin'), addMultip
  *       500:
  *         description: Internal server error.
  */
-pointRoute.post('/admin/addMultiplierTemporary', verifyToken('admin'), addMultiplierTemporary)
+pointRoute.post('/admin/addMultiplierTemporary', addMultiplierTemporary)
+
+/**
+ * @swagger
+ * /api/point/list:
+ *   get:
+ *     summary: Get on/offchain points for all user
+ *     tags: [Point-User]
+ *     description: Retrieves all user offchain points
+ *     responses:
+ *       200:
+ *         description: Points information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+pointRoute.get('/list', getPointList)
 
 /**
  * @swagger
@@ -130,7 +149,7 @@ pointRoute.post('/admin/addMultiplierTemporary', verifyToken('admin'), addMultip
  *             properties:
  *               period:
  *                 type: number
- *                 description: period 
+ *                 description: period
  *     responses:
  *       200:
  *         description: Points information retrieved successfully.
@@ -160,6 +179,37 @@ pointRoute.get('/offChain/list', getOffChainPointList)
 
 /**
  * @swagger
+ * /api/point/user/{account}:
+ *   get:
+ *     summary: Get on/offchain points for a user
+ *     tags: [Point-User]
+ *     description: Retrieves on/offchain points for a specified period
+ *     parameters:
+ *       - in: path
+ *         name: account
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User account identifier.
+ *       - in: query
+ *         name: period
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Period in hours to retrieve points for. Default is 1 day.
+ *     responses:
+ *       200:
+ *         description: Points information retrieved successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+pointRoute.get('/user/:account', getUserPoint)
+
+/**
+ * @swagger
  * /api/point/onChain/user:
  *   post:
  *     summary: Get onchain points for a user
@@ -177,7 +227,7 @@ pointRoute.get('/offChain/list', getOffChainPointList)
  *                 description: account
  *               period:
  *                 type: number
- *                 description: period 
+ *                 description: period
  *     responses:
  *       200:
  *         description: Points information retrieved successfully.

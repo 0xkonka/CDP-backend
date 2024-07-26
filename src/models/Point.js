@@ -12,6 +12,21 @@ const xpPointSchema = new Schema({
   },
 })
 
+const multiplierTemporaryScheme = new Schema({
+  value: {
+    type: Number,
+    default: 0,
+  },
+  timestamp: {
+    type: Number,
+    default: 0,
+  },
+  pending: {
+    type: Boolean,
+    default: true,
+  },
+})
+
 const PointSchema = new Schema({
   account: {
     type: String,
@@ -26,9 +41,10 @@ const PointSchema = new Schema({
     type: [xpPointSchema],
     default: [],
   },
-  multiplier_permanent: { type: Number, default: 1 },
-  multiplier_temporary: { type: Number, default: 0 },
-  endTimestamp: { type: Number },
+  multiplier_permanent: { type: Number, default: 2.5 },
+  multiplier_temporary: {
+    type: multiplierTemporaryScheme,
+  },
 })
 
 export const Point = mongoose.models.Point || mongoose.model('Point', PointSchema)

@@ -142,17 +142,17 @@ export const adminRedeemInviteCode = async (req, res, next) => {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account or count' })
     }
 
-    const isUserAlreadyRedeemed = await Referral.findOne({ redeemer: account })
+    const isUserAlreadyRedeemed = await Referral.findOne({ redeemer: account.toLowerCase() })
 
     if (isUserAlreadyRedeemed)
       return res.status(CONFLICT_CODE).send({ result: false, messages: 'You already redeemed' })
 
-    await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { redeemer: account, redeemed: true } })
+    await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { redeemer: account.toLowerCase(), redeemed: true } })
 
     for (let i = 0; i < +count; i++)
-      await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account } })
+      await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account.toLowerCase() } })
 
-    await Point.findOneAndUpdate({ account }, { multiplier_permanent: 2 }, { new: true, upsert: true })
+    await Point.findOneAndUpdate({ account : account.toLowerCase() }, { multiplier_permanent: 2 }, { new: true, upsert: true })
 
     return res.status(SUCCESS_CODE).send({ result: true })
   } catch (error) {
@@ -170,7 +170,7 @@ export const redeemInviteCode = async (req, res, next) => {
       return res.status(BAD_REQ_CODE).json({ result: false, message: 'Missing account or inviteCode or count' })
     }
 
-    const isUserAlreadyRedeemed = await Referral.findOne({ redeemer: account })
+    const isUserAlreadyRedeemed = await Referral.findOne({ redeemer: account.toLowerCase() })
     const referral = await Referral.findOne({ inviteCode })
 
     if (isUserAlreadyRedeemed)
@@ -179,7 +179,7 @@ export const redeemInviteCode = async (req, res, next) => {
     if (referral.redeemed)
       return res.status(CONFLICT_CODE).send({ result: false, messages: 'This inviteCode was already redeemed' })
 
-    await Referral.updateOne({ inviteCode }, { $set: { redeemer: account, redeemed: true } })
+    await Referral.updateOne({ inviteCode }, { $set: { redeemer: account.toLowerCase(), redeemed: true } })
 
     // for (let i = 0; i < +count; i++)
     // await Referral.updateOne({ owner: 'admin', redeemed: false }, { $set: { owner: account } })
@@ -197,7 +197,7 @@ export const redeemInviteCode = async (req, res, next) => {
       generatedCodes.push(inviteCode)
     }
 
-    await Point.findOneAndUpdate({ account }, { multiplier_permanent: 2 }, { new: true, upsert: true })
+    await Point.findOneAndUpdate({ account: account.toLowerCase() }, { multiplier_permanent: 2 }, { new: true, upsert: true })
 
     return res.status(SUCCESS_CODE).send({ result: true, data: generatedCodes })
   } catch (error) {
@@ -213,12 +213,12 @@ export const getUserReferral = async (req, res, next) => {
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
-    const userData = await Referral.findOne({ redeemed: true, redeemer: account })
+    const userData = await Referral.findOne({ redeemed: true, redeemer: account.toLowerCase() })
 
     if (userData) {
-      let redeemerData = await Referral.find({ owner: account })
+      let redeemerData = await Referral.find({ owner: account.toLowerCase() })
       for (let i = 0; i < redeemerData.length; i++) {
-        const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer })
+        const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer.toLowerCase() })
         if (redeemerPoint) redeemerData[i] = { ...redeemerData[i].toObject(), xpPoint: redeemerPoint.xpPoint }
       }
       return res
@@ -239,7 +239,7 @@ export const getUserReferrer = async (req, res, next) => {
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
-    const referrer = await Referral.findOne({ redeemed: true, redeemer: account })
+    const referrer = await Referral.findOne({ redeemed: true, redeemer: account.toLowerCase() })
 
     if (referrer) return res.status(SUCCESS_CODE).send({ result: true, redeemed: true, referrer })
 

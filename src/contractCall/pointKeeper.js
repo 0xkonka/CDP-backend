@@ -27,15 +27,10 @@ export const updateTreningPoints = async () => {
     console.log('combinedPointsArray', combinedPoints)
 
     const referrals = await Referral.find({ redeemed: true })
-    const updatedPointsArray = await distributeReferralPoints(combinedPoints, referrals)
+    const updatedPointsArray = await distributeReferralPoints(onChainPoints, referrals, combinedPoints)
     console.log('updatedPointsArray', updatedPointsArray)
 
     await resetXpPoints(updatedPointsArray)
-
-    const referralPointsMap = calculateReferralPoints(updatedPointsArray, referrals)
-    // console.log('referralPointsMap', referralPointsMap)
-
-    await updateReferralPoints(referralPointsMap)
 
     const tx = await treningPoints.updatePoints(updatedPointsArray)
     await tx.wait()
@@ -89,7 +84,39 @@ const fetchOnChainPoints = async (timestamp) => {
  * Fetch off-chain points from the database.
  */
 const fetchOffChainPoints = async () => {
-  return await Point.find({ xpPoint: { $ne: 0 } }).select('account xpPoint')
+  return await Point.aggregate([
+    // Add fields to calculate the sum of xpPoint and referralPoint with pending flag true
+    {
+      $addFields: {
+        xpPoint_sum: { $sum: '$xpPoint.point' },
+        referralPoint_filtered: {
+          $filter: {
+            input: '$referralPoint',
+            as: 'referral',
+            cond: { $eq: ['$$referral.pending', true] },
+          },
+        },
+        referralPoint_sum: { $sum: '$referralPoint_filtered.point' },
+      },
+    },
+    // 0xCAc35a5B2d47e3D2BDa9bd14b14D5FF71a34F1c2
+    // Match documents where either sum is greater than 0
+    {
+      $match: {
+        $or: [{ xpPoint_sum: { $gt: 0 } }, { referralPoint_sum: { $gt: 0 } }],
+      },
+    },
+    // Project the required fields
+    {
+      $project: {
+        account: 1,
+        xpPoint: 1,
+        referralPoint: 1,
+        xpPoint_sum: 1,
+        referralPoint_sum: 1,
+      },
+    },
+  ])
 }
 
 /**
@@ -99,100 +126,89 @@ const combinePoints = (onChainPoints, offChainPoints) => {
   const combinedPoints = {}
 
   for (const [user, points] of Object.entries(onChainPoints)) {
-    combinedPoints[user] = points
+    combinedPoints[user] = { onChain: points, total: points }
   }
 
   offChainPoints.forEach((point) => {
     const { account, xpPoint } = point
-    if (combinedPoints[account.toLowerCase()]) {
-      combinedPoints[account.toLowerCase()] = parseEther(xpPoint.toString()).add(combinedPoints[account])
+    const totalXpPoints = xpPoint.reduce((acc, xp) => acc + xp.point, 0)
+    const lowerCaseAccount = account.toLowerCase()
+    if (combinedPoints[lowerCaseAccount]) {
+      combinedPoints[lowerCaseAccount].total += BigInt(totalXpPoints)
     } else {
-      combinedPoints[account.toLowerCase()] = parseEther(xpPoint.toString())
+      combinedPoints[lowerCaseAccount] = { onChain: BigInt(0), total: BigInt(totalXpPoints) }
     }
   })
 
-  return Object.entries(combinedPoints).map(([user, points]) => ({ user, points }))
+  return Object.entries(combinedPoints).map(([user, points]) => ({
+    user,
+    onChain: points.onChain,
+    total: points.total,
+  }))
 }
 
 /**
- * Distribute 15% of points to referrers and update user points.
+ * Distribute 15% of on-chain points to referrers and update user points.
  */
-const distributeReferralPoints = async (combinedPointsArray, referrals) => {
-  const updatedPointsMap = new Map();
+const distributeReferralPoints = async (onChainPoints, referrals, combinedPointsArray) => {
+  const updatedPointsMap = new Map()
 
   combinedPointsArray.forEach((entry) => {
-    const user = entry.user.toLowerCase();
-    const points = BigInt(entry.points);
+    const user = entry.user.toLowerCase()
+    const totalPoints = BigInt(entry.total)
+    const onChainPointsForUser = onChainPoints[user] || BigInt(0)
+
+    // Update total points in the map
     if (updatedPointsMap.has(user)) {
-      updatedPointsMap.set(user, updatedPointsMap.get(user) + points);
+      updatedPointsMap.set(user, updatedPointsMap.get(user) + totalPoints)
     } else {
-      updatedPointsMap.set(user, points);
+      updatedPointsMap.set(user, totalPoints)
     }
 
-    const referral = referrals.find((ref) => ref.redeemer.toLowerCase() === user);
+    // Distribute 15% of on-chain points to referrer
+    const referral = referrals.find((ref) => ref.redeemer.toLowerCase() === user)
     if (referral) {
-      const referrerPoints = (points * BigInt(15)) / BigInt(100);
-      const updatedPoints = points - referrerPoints;
+      const referrerPoints = (onChainPointsForUser * BigInt(15)) / BigInt(100)
+      const updatedPoints = totalPoints - referrerPoints
 
-      updatedPointsMap.set(user, updatedPoints);
+      updatedPointsMap.set(user, updatedPoints)
 
-      const referrer = referral.owner.toLowerCase();
+      const referrer = referral.owner.toLowerCase()
       if (referrer !== 'admin') {
         if (updatedPointsMap.has(referrer)) {
-          updatedPointsMap.set(referrer, updatedPointsMap.get(referrer) + referrerPoints);
+          updatedPointsMap.set(referrer, updatedPointsMap.get(referrer) + referrerPoints)
         } else {
-          updatedPointsMap.set(referrer, referrerPoints);
+          updatedPointsMap.set(referrer, referrerPoints)
         }
       }
     }
-  });
-
-  const updatedPointsArray = Array.from(updatedPointsMap, ([user, points]) => ({ user, points }));
-  return updatedPointsArray;
-};
-
-/**
- * Reset xpPoint to 0 for updated accounts in the Point DB.
- */
-const resetXpPoints = async (updatedPointsArray) => {
-  const updatedAccounts = updatedPointsArray.map((entry) => entry.user)
-  await Point.updateMany({ account: { $in: updatedAccounts } }, { $set: { xpPoint: 0 } })
-  console.log('Updated xpPoint to 0 for accounts:', updatedAccounts)
-}
-
-/**
- * Calculate referral points to be updated in the Point DB.
- */
-const calculateReferralPoints = (updatedPointsArray, referrals) => {
-  const referralPointsMap = {}
-
-  updatedPointsArray.forEach((entry) => {
-    const referral = referrals.find((ref) => ref.redeemer === entry.user)
-    if (referral) {
-      const referrerPoints = (entry.points * BigInt(15)) / BigInt(100)
-      if (referralPointsMap[referral.owner]) {
-        referralPointsMap[referral.owner] += +formatEther(referrerPoints)
-      } else {
-        referralPointsMap[referral.owner] = +formatEther(referrerPoints)
-      }
-    }
   })
 
-  return referralPointsMap
+  const updatedPointsArray = Array.from(updatedPointsMap, ([user, points]) => ({ user, points }))
+  return updatedPointsArray
 }
 
 /**
- * Update referral points in the Point DB.
+ * Reset xpPoint to 0 for updated accounts in the Point DB and set pending to false for referralPoint.
  */
-const updateReferralPoints = async (referralPointsMap) => {
-  const referralUpdates = Object.entries(referralPointsMap).map(([account, points]) => ({
-    updateOne: {
-      filter: { account },
-      update: { $inc: { referralPoint: points } },
-      upsert: true,
-    },
-  }))
+const resetXpPoints = async (updatedPointsArray) => {
+  const updatedAccounts = updatedPointsArray.map((entry) => entry.user.toLowerCase())
 
-  await Point.bulkWrite(referralUpdates)
-  console.log('Updated referral points for accounts:', Object.keys(referralPointsMap))
+  console.log('updatedAccounts', updatedAccounts)
+
+  // Fetch accounts from the database and convert to lowercase for comparison
+  const accounts = await Point.find({ account: { $in: updatedAccounts } }, { account: 1 })
+  const accountsToUpdate = accounts
+    .filter((acc) => updatedAccounts.includes(acc.account.toLowerCase()))
+    .map((acc) => acc.account)
+
+  console.log('accountsToUpdate', accountsToUpdate)
+
+  // Update the documents in MongoDB
+  await Point.updateMany(
+    { account: { $in: accountsToUpdate } },
+    { $set: { xpPoint: [], 'referralPoint.$[].pending': false } }
+  )
+
+  console.log('Updated xpPoint to 0 and set pending to false for referralPoint for accounts:', accountsToUpdate)
 }

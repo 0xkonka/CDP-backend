@@ -97,6 +97,6 @@ NodeCron.schedule('0 0 * * *', async () => {
   console.log('Cron job executed at UTC 00:00:00');
 });
 
-await updateTreningPoints();
+// await updateTreningPoints();
 
 app.listen(PORT, () => console.log(`Server runs on port ${PORT}`));

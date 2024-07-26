@@ -218,7 +218,7 @@ export const getUserReferral = async (req, res, next) => {
     if (userData) {
       let redeemerData = await Referral.find({ owner: account.toLowerCase() })
       for (let i = 0; i < redeemerData.length; i++) {
-        const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer.toLowerCase() })
+        const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer && redeemerData[i].redeemer.toLowerCase() })
         if (redeemerPoint) redeemerData[i] = { ...redeemerData[i].toObject(), xpPoint: redeemerPoint.xpPoint }
       }
       return res

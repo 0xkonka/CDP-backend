@@ -213,10 +213,22 @@ export const getUserReferral = async (req, res, next) => {
 
     if (!account) return res.status(SERVER_ERROR_CODE).send({ result: false, messages: SERVER_ERROR_MSG })
 
-    const userData = await Referral.findOne({ redeemed: true, redeemer: account.toLowerCase() })
+    const userData = await Referral.findOne({ 
+      redeemed: true, 
+      $or: [
+        { redeemer: account.toLowerCase() },
+        { redeemer: account }
+      ]
+    })
+    console.log('userData: ', userData)
 
     if (userData) {
-      let redeemerData = await Referral.find({ owner: account.toLowerCase() })
+      let redeemerData = await Referral.find({ 
+        $or: [
+          { owner: account.toLowerCase() },
+          { owner: account }
+        ]
+      })
       for (let i = 0; i < redeemerData.length; i++) {
         const redeemerPoint = await Point.findOne({ account: redeemerData[i].redeemer && redeemerData[i].redeemer.toLowerCase() })
         if (redeemerPoint) redeemerData[i] = { ...redeemerData[i].toObject(), xpPoint: redeemerPoint.xpPoint }

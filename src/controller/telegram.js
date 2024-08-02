@@ -155,10 +155,14 @@ export const startFarmingPoint = async (req, res, next) => {
 export const getAppStatus = async (req, res, next) => {
   try {
     const totalUser = (await Telegram.find({})).length
-
     const registeredUser = await Telegram.countDocuments({ userId: { $exists: true }, userName: { $exists: true } })
+    const convertionRate = registeredUser / totalUser
+    const peopleJoinedThroughReferral = await countJoinedThroughReferral()
+    const averageReferrals = await averageReferralsPerUser()
 
-    return res.status(SUCCESS_CODE).json({ result: true, totalUser, registeredUser })
+    return res
+      .status(SUCCESS_CODE)
+      .json({ result: true, totalUser, registeredUser, convertionRate, peopleJoinedThroughReferral, averageReferrals })
   } catch (error) {
     console.log('error', error)
     next(error)
@@ -281,4 +285,38 @@ const sendTelegramMessage = async (chatId) => {
     console.error('Error sending Telegram message:', error.response ? error.response.data : error.message)
     throw error
   }
+}
+
+const countJoinedThroughReferral = async () => {
+  const result = await Telegram.aggregate([
+    {
+      $match: {
+        'referrers.0': { $exists: true },
+      },
+    },
+    {
+      $count: 'peopleJoinedThroughReferral',
+    },
+  ])
+
+  return result[0]?.peopleJoinedThroughReferral || 0
+}
+
+// Requirement 5: How Many People Each User Refers on Average
+const averageReferralsPerUser = async () => {
+  const result = await Telegram.aggregate([
+    {
+      $addFields: {
+        numberOfReferrals: { $size: '$referrers' },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        averageReferrals: { $avg: '$numberOfReferrals' },
+      },
+    },
+  ])
+
+  return result[0]?.averageReferrals || 0
 }

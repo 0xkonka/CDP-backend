@@ -1,8 +1,18 @@
-import express from "express";
-import bodyParser from "body-parser";
-import { getUserReferral, redeemInviteCode, validateInviteCode, generateInviteCode, distributeInviteCode, getAvalableInviteCodes, adminRedeemInviteCode, getUserReferrer, getInviteCodeStatus } from '../controller/referral.js'
+import express from 'express'
+import bodyParser from 'body-parser'
+import {
+  getUserReferral,
+  redeemInviteCode,
+  validateInviteCode,
+  generateInviteCode,
+  distributeInviteCode,
+  adminRedeemInviteCode,
+  // getUserReferrer,
+  getInviteCodeStatus,
+  getAvailableInviteCodes,
+} from '../controller/referral.js'
 import { verifyToken } from '../middleware/authMiddleware.js'
-import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
+import { rateLimitMiddleware } from '../middleware/rateLimitMiddleware.js'
 
 const referralRoute = express.Router()
 
@@ -17,13 +27,24 @@ referralRoute.use(bodyParser.json()) // to use body object in requests
  *     description: Get available InviteCode list
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               inviteCodeType:
+ *                 type: string
+ *                 description: The type of invite code (default is 'testnet').
+ *                 example: 'testnet'
  *     responses:
  *       200:
  *         description: Available InviteCode retrieved successfully.
  *       500:
  *         description: Internal server error.
  */
-referralRoute.post('/admin/availableInviteCodes', verifyToken('admin'), getAvalableInviteCodes)
+referralRoute.post('/admin/availableInviteCodes', verifyToken('admin'), getAvailableInviteCodes)
 
 /**
  * @swagger
@@ -44,6 +65,10 @@ referralRoute.post('/admin/availableInviteCodes', verifyToken('admin'), getAvala
  *               count:
  *                 type: number
  *                 description: Number of invite codes to generate.
+ *               inviteCodeType:
+ *                 type: string
+ *                 description: The type of invite code (default is 'testnet').
+ *                 example: 'testnet'
  *     responses:
  *       200:
  *         description: Invite code(s) generated successfully.
@@ -74,6 +99,10 @@ referralRoute.post('/admin/generate', verifyToken('admin'), generateInviteCode)
  *               count:
  *                 type: number
  *                 description: Number of invite codes to generate.
+ *               inviteCodeType:
+ *                 type: string
+ *                 description: The type of invite code (default is 'testnet').
+ *                 example: 'testnet'
  *     responses:
  *       200:
  *         description: Invite code(s) generated successfully.
@@ -104,6 +133,10 @@ referralRoute.post('/admin/distributeCodes', verifyToken('admin'), distributeInv
  *               count:
  *                 type: number
  *                 description: Number of invite codes to distribute.
+ *               inviteCodeType:
+ *                 type: string
+ *                 description: The type of invite code (default is 'testnet').
+ *                 example: 'testnet'
  *     responses:
  *       200:
  *         description: Invite code redeemed successfully.
@@ -125,6 +158,13 @@ referralRoute.post('/admin/redeem', verifyToken('admin'), adminRedeemInviteCode)
  *     summary: Get total redeemed inviteCodes and available inviteCodes
  *     tags: [Referral-User]
  *     description: Get total redeemed inviteCodes and available inviteCodes
+ *     parameters:
+ *       - in: query
+ *         name: inviteCodeType
+ *         schema:
+ *           type: string
+ *           default: 'testnet'
+ *         description: The type of invite code (default is 'testnet').
  *     responses:
  *       200:
  *         description: InviteCode status retrieved successfully.
@@ -150,6 +190,10 @@ referralRoute.get('/user/inviteCodeStatus', getInviteCodeStatus)
  *               inviteCode:
  *                 type: string
  *                 description: The invite code to validate.
+ *               inviteCodeType:
+ *                 type: string
+ *                 description: The type of invite code (default is 'testnet').
+ *                 example: 'testnet'
  *     responses:
  *       200:
  *         description: Invite code is valid.
@@ -187,6 +231,10 @@ referralRoute.post('/user/validate', validateInviteCode)
  *               count:
  *                 type: number
  *                 description: Number of invite codes to distribute.
+ *               inviteCodeType:
+ *                 type: string
+ *                 description: The type of invite code (default is 'testnet').
+ *                 example: 'testnet'
  *     responses:
  *       200:
  *         description: Invite code redeemed successfully.
@@ -215,6 +263,12 @@ referralRoute.post('/user/redeem', rateLimitMiddleware, redeemInviteCode)
  *         schema:
  *           type: string
  *         description: User account identifier.
+ *       - in: query
+ *         name: inviteCodeType
+ *         schema:
+ *           type: string
+ *           default: 'testnet'
+ *         description: The type of invite code (default is 'testnet').
  *     responses:
  *       200:
  *         description: Referral information retrieved successfully.
@@ -225,28 +279,34 @@ referralRoute.post('/user/redeem', rateLimitMiddleware, redeemInviteCode)
  */
 referralRoute.get('/user/:account', getUserReferral)
 
-/**
- * @swagger
- * /api/referral/getReferrer/{account}:
- *   get:
- *     summary: Get referrer of user
- *     tags: [Referral-User]
- *     description: 
- *     parameters:
- *       - in: path
- *         name: account
- *         required: true
- *         schema:
- *           type: string
- *         description: User account identifier.
- *     responses:
- *       200:
- *         description: Referrer information retrieved successfully.
- *       404:
- *         description: Account not found.
- *       500:
- *         description: Internal server error.
- */
-referralRoute.get('/getReferrer/:account', getUserReferrer)
+// /**
+//  * @swagger
+//  * /api/referral/getReferrer/{account}:
+//  *   get:
+//  *     summary: Get referrer of user
+//  *     tags: [Referral-User]
+//  *     description: Retrieves referrer details for a specific user.
+//  *     parameters:
+//  *       - in: path
+//  *         name: account
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: User account identifier.
+//  *       - in: query
+//  *         name: inviteCodeType
+//  *         schema:
+//  *           type: string
+//  *           default: 'testnet'
+//  *         description: The type of invite code (default is 'testnet').
+//  *     responses:
+//  *       200:
+//  *         description: Referrer information retrieved successfully.
+//  *       404:
+//  *         description: Account not found.
+//  *       500:
+//  *         description: Internal server error.
+//  */
+// referralRoute.get('/getReferrer/:account', getUserReferrer)
 
-export default referralRoute;
+export default referralRoute
